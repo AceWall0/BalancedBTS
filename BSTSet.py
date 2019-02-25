@@ -60,8 +60,6 @@ class BSTSet(object):
             self.data = key
             ## Reference to the parent node.
             self.parent = parent
-            ## Stores the total number of rooted elements in this node.
-            self.counter = 0
             ## Reference to the left child node.
             self.left = None
             ## Reference to the right child node.
@@ -381,24 +379,6 @@ class BSTSet(object):
             self.__toStringRec(n.left, sb, depth + 1)   
             self.__toStringRec(n.right, sb, depth + 1)
 
-    ##
-     # @autor Wallace Alves dos Santos
-     #
-    class BSTBalanced(object):
-        def __init__(self, isSelfBalancing=False, top=2, bottom=3):
-            """
-            TODO: Se isSelfBalancing for True, constrói uma árvore auto-balanceada, com α = top/bottom.
-            TODO: Senão, constrói uma árvore sem auto-balanceamento (top e bottom devem ser ignorados).
-            """
-            self.top = top
-            self.bottom = bottom or 3
-
-        def root(self):
-            """TODO: Retorna a raiz da árvore."""
-            pass
-
-        def rebalance(self, bstNode):
-            """TODO: Executa a operação de rebalanceamento na subárvore que está enraizada no nó dado."""
 
     ##
      # Iterator implementation for this binary search tree. The elements
