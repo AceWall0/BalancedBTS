@@ -16,16 +16,9 @@ class Node:
     def __init__(self, data, parent):
         self.data = data
         self.parent = parent
+        self.counter = 0
         self.left = None
         self.right = None
-
-
-    def __str__(self):
-        return str(self.data)
-
-    def __repr__(self):
-        return "Node: %s, Size: %d" % (self.data, sys.getsizeof(self))
-
 
     ## Compares the data of this node to a given key.
     #
@@ -36,15 +29,24 @@ class Node:
     def compareTo(self, key):
         return cmp(self.data, key)
 
+    def __str__(self):
+        return str(self.data)
+
+    def __repr__(self):
+        return f"Node: {self.data}, Children: {self.counter}, Size: {sys.getsizeof(self):d}B"
+        # return "Node: %s, Size: %d" % (self.data, sys.getsizeof(self))
+
 
 ##
 # @author Wallace Alves dos Santos
 #
 class BalancedBSTSet:
-    def __init__(self, b=False):
+    def __init__(self, b=False, top=2, bottom=3):
         self.__root = None
         self.__size = 0
         self.selfbalanced = b
+        self.top = top
+        self.bottom = bottom
 
 
     ##
@@ -53,6 +55,9 @@ class BalancedBSTSet:
     #
     def root(self):
         return self.__root
+
+    def rebalance(self, bstnode):
+        pass  # TODO!!!
 
 
     ## Return whether this tree is empty.
@@ -110,6 +115,7 @@ class BalancedBSTSet:
                 else:
                     current.left = Node(key, current)
                     self.__size += 1
+                    self.__alter_counter(current.left)
                     return True
             else:
                 if current.right:
@@ -117,7 +123,24 @@ class BalancedBSTSet:
                 else:
                     current.right = Node(key, current)
                     self.__size += 1
+                    self.__alter_counter(current.right)
                     return True
+
+
+    ## Increases or decreases the counter from the parent of a Node until the root.
+    #
+    #  @param increase False if you want to decrease
+    #
+    def __alter_counter(self, node, increase=True):
+        amount = 1 if increase else -1
+        current = node
+        if not increase:
+            current.counter += amount
+
+        while current.parent:
+            current = current.parent
+            current.counter += amount
+
 
 
     ## Adds an iterable to the tree.
@@ -140,6 +163,7 @@ class BalancedBSTSet:
     def remove(self, obj):
         n = self.findEntry(obj)
         if n is None: return False
+        self.__alter_counter(n, increase=False)
         self.unlinkNode(n)
         return True
 
@@ -364,7 +388,6 @@ class BalancedBSTSet:
             self.__pending = None
 
             ## The tree to be traversed.
-            #  Inner classes do not have access to outer class variables.
             self.__tree = tree
 
             ## Node to be returned by next call to next().
