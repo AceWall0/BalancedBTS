@@ -83,7 +83,7 @@ class BalancedBSTSet:
     #
     def __inOrder(self, node, arr):
         if arr is None: arr = []
-        if node != None:
+        if node:
             self.__inOrder(node.left, arr)
             arr.append(node)
             self.__inOrder(node.right, arr)
@@ -97,7 +97,7 @@ class BalancedBSTSet:
     # @return True if the object is in the tree, or False otherwise.
     #
     def __contains__(self, obj):
-        return self.findEntry(obj) != None
+        return self.findEntry(obj) is not None
 
     ##
     # Adds the given object to this tree.
@@ -118,14 +118,14 @@ class BalancedBSTSet:
                 # key is already in the tree
                 return False
             elif comp > 0:
-                if current.left != None:
+                if current.left:
                     current = current.left
                 else:
                     current.left = Node(key, current)
                     self.__size += 1
                     return True
             else:
-                if current.right != None:
+                if current.right:
                     current = current.right
                 else:
                     current.right = Node(key, current)
@@ -163,7 +163,7 @@ class BalancedBSTSet:
     #
     def findEntry(self, key):
         current = self.__root
-        while current != None:
+        while current:
             comp = current.compareTo(key)
             if comp == 0:
                 return current
@@ -180,12 +180,12 @@ class BalancedBSTSet:
     #   or None if there is no successor.
     #
     def successor(self, n):
-        if n == None:
+        if n is None:
             return None
-        elif n.right != None:
+        elif n.right:
             # leftmost entry in right subtree
             current = n.right
-            while current.left != None:
+            while current.left:
                 current = current.left
             return current
         else:
@@ -193,7 +193,7 @@ class BalancedBSTSet:
             # a left child its parent must be the successor
             current = n.parent
             child = n
-            while current != None and current.right == child:
+            while current and current.right == child:
                 child = current
                 current = current.parent
             # either current is None, or child is left child of current
@@ -210,7 +210,7 @@ class BalancedBSTSet:
         # data from successor up to n, and then delete successor
         # node instead of given node n
         startNode = None
-        if n.left != None and n.right != None:
+        if n.left and n.right:
             s = self.successor(n)
             n.data = s.data
             n = s  # causes s to be deleted in code below
@@ -218,14 +218,14 @@ class BalancedBSTSet:
 
         # n has at most one child
         replacement = None
-        if n.left != None:
+        if n.left:
             replacement = n.left
-        elif n.right != None:
+        elif n.right:
             replacement = n.right
 
         # link replacement on tree in place of node n
         # (replacement may be None)
-        if n.parent == None:
+        if n.parent is None:
             self.__root = replacement
         else:
             if n == n.parent.left:
@@ -233,7 +233,7 @@ class BalancedBSTSet:
             else:
                 n.parent.right = replacement
 
-        if replacement != None:
+        if replacement:
             replacement.parent = n.parent
 
         self.__size -= 1
@@ -300,7 +300,7 @@ class BalancedBSTSet:
     # @param root node of the subtree.
     #
     def getHeight(self, root):
-        if root != None:
+        if root:
             return 1 + max(self.getHeight(root.left), self.getHeight(root.right))
         else:
             return -1
@@ -338,14 +338,14 @@ class BalancedBSTSet:
             sb.append("-\n")
             return
 
-        if n.left is not None or n.right is not None:
+        if n.left or n.right:
             sb.append("+ ")
         else:
             sb.append("- ")
 
         sb.append(str(n))
         sb.append("\n")
-        if n.left is not None or n.right is not None:
+        if n.left or n.right:
             self.__toStringRec(n.left, sb, depth + 1)
             self.__toStringRec(n.right, sb, depth + 1)
 
@@ -356,8 +356,8 @@ class BalancedBSTSet:
     class BSTIterator(object):
         ## return the smallest value of the tree.
         def getSmallestValue(self, n):
-            if n != None:
-                while n.left != None:
+            if n:
+                while n.left:
                     n = n.left
             return n
 
@@ -388,7 +388,7 @@ class BalancedBSTSet:
         # Whether current is not None.
         #
         def hasNext(self):
-            return self.__current != None
+            return self.__current is not None
 
         ## Return the content of the current node without advancing.
         def peek(self):
@@ -422,7 +422,7 @@ class BalancedBSTSet:
         def remove(self):
             if self.__pending is None: raise IndexError
 
-            if self.__pending.left != None and self.__pending.right != None:
+            if self.__pending.left and self.__pending.right:
                 self.__current = self.__pending
 
             self.__tree.unlinkNode(self.__pending)
