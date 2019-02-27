@@ -13,6 +13,8 @@
 from __future__ import print_function
 import sys
 from random import randint
+print("Running BSTSet")
+
 
 ## Compare two objects.
  #

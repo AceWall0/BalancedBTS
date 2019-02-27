@@ -7,36 +7,25 @@
 from __future__ import print_function
 import sys
 from random import randint
+# raise ImportError
+print("Running BalancedBSTSet")
 
 
-##
-# Node type for this implementation.
-# @author Wallace Alves dos Santos
+## @author Wallace Alves dos Santos
 class Node:
-    ##
-    #  Constructor given a data object and the parent of this node.
-    #
-    #  @param key data object.
-    #  @param parent parent node.
-    #
-    def __init__(self, key, parent):
-        ## Data (object) in this node.
-        self.data = key
-        ## Reference to the parent node.
+    def __init__(self, data, parent):
+        self.data = data
         self.parent = parent
-        ## Reference to the left child node.
         self.left = None
-        ## Reference to the right child node.
         self.right = None
 
-    ## Return a string representation of this node.
+
     def __str__(self):
         return str(self.data)
 
-    ## Return a string representation of this node.
     def __repr__(self):
-        return "Node: %s, Size: %d" % \
-               (self.data, sys.getsizeof(self))
+        return "Node: %s, Size: %d" % (self.data, sys.getsizeof(self))
+
 
     ## Compares the data of this node to a given key.
     #
@@ -52,10 +41,6 @@ class Node:
 # @author Wallace Alves dos Santos
 #
 class BalancedBSTSet:
-
-    ##
-    # Constructs an empty binary search tree.
-    #
     def __init__(self, b=False):
         self.__root = None
         self.__size = 0
@@ -88,7 +73,6 @@ class BalancedBSTSet:
             self.__inOrder(node.left, arr)
             arr.append(node)
             self.__inOrder(node.right, arr)
-
         return arr
 
 
@@ -135,14 +119,17 @@ class BalancedBSTSet:
                     self.__size += 1
                     return True
 
+
     ## Adds an iterable to the tree.
     def update(self, lst):
         for i in lst:
             self.add(i)
 
+
     ## like lists.
     def append(self, n):
         return self.add(n)
+
 
     ##
     # Removes the given object from this tree.
@@ -152,11 +139,10 @@ class BalancedBSTSet:
     #
     def remove(self, obj):
         n = self.findEntry(obj)
-        if n is None:
-            return False
-
+        if n is None: return False
         self.unlinkNode(n)
         return True
+
 
     ##
     # Returns the node containing key, or None if the key is not
@@ -176,6 +162,7 @@ class BalancedBSTSet:
                 current = current.right
         return None
 
+
     ##
     # Returns the successor of the given node.
     # @param n
@@ -183,8 +170,8 @@ class BalancedBSTSet:
     #   or None if there is no successor.
     #
     def successor(self, n):
-        if n is None:
-            return None
+        if n is None: return None
+
         elif n.right:
             # leftmost entry in right subtree
             current = n.right
@@ -202,6 +189,7 @@ class BalancedBSTSet:
             # either current is None, or child is left child of current
             return current
 
+
     ##
     # Removes the given node, preserving the binary search
     # tree property of the tree.
@@ -212,12 +200,13 @@ class BalancedBSTSet:
         # first deal with the two-child case copy
         # data from successor up to n, and then delete successor
         # node instead of given node n
-        startNode = None
+
+        # startNode = None
         if n.left and n.right:
             s = self.successor(n)
             n.data = s.data
             n = s  # causes s to be deleted in code below
-            startNode = s.parent
+            # startNode = s.parent
 
         # n has at most one child
         replacement = None
@@ -241,13 +230,16 @@ class BalancedBSTSet:
 
         self.__size -= 1
 
+
     ## Returns an iterator for this tree.
     def iterator(self):
         return self.BSTIterator(self)
 
+
     ## Returns the number of elements in this tree.
     def __len__(self):
         return self.__size
+
 
     ## Returns an array containing all of the elements in this tree.
     # If the collection makes any guarantees as to what order its elements
@@ -260,6 +252,7 @@ class BalancedBSTSet:
         for n in self.iterator():
             arr.append(n)
         return arr
+
 
     ## Indexing operator [].
     #
@@ -275,26 +268,19 @@ class BalancedBSTSet:
             if i == ind:
                 return n
 
+
     ## Iterator as a generator.
-    #
-    # Generators are functions having an yield keyword.
-    # Any function which has “yield” in it is a generator.
-    #
-    # Generator takes care of creating the iterable.
-    # It also takes care of creating the underlying iterator.
-    # And next() of this iterator() is such that it returns each ‘yield’
-    #
-    # @see https://www.agiliq.com/blog/2017/11/how-python-generators-are-similar-iterators/
-    #
     def __iter__(self):
         for n in self.iterator():
             yield n
+
 
     ## Return the height of this tree.
     # The height of a tree is the height of its root node.
     #
     def height(self):
         return self.getHeight(self.__root)
+
 
     ## Return the height of a subtree.
     # The height of a node is the number of edges on the longest path between that node and a leaf.
@@ -308,6 +294,7 @@ class BalancedBSTSet:
         else:
             return -1
 
+
     ##
     # Returns a representation of this tree as a multi-line string.
     # The tree is drawn with the root at the left and children are
@@ -319,12 +306,14 @@ class BalancedBSTSet:
         self.__toStringRec(self.__root, sb, 0)
         return ''.join(sb)
 
+
     ## Prints the nodes of this tree in order.
     def __str__(self):
         st = ""
         for n in self:
             st += str(n) + " "
         return st
+
 
     ##
     # Preorder traversal of the tree that builds a string representation
@@ -336,11 +325,9 @@ class BalancedBSTSet:
     #
     def __toStringRec(self, n, sb, depth):
         sb.append("  " * depth)
-
         if n is None:
             sb.append("-\n")
             return
-
         if n.left or n.right:
             sb.append("+ ")
         else:
@@ -351,6 +338,7 @@ class BalancedBSTSet:
         if n.left or n.right:
             self.__toStringRec(n.left, sb, depth + 1)
             self.__toStringRec(n.right, sb, depth + 1)
+
 
     ##
     # Iterator implementation for this binary search tree. The elements
@@ -363,6 +351,7 @@ class BalancedBSTSet:
                 while n.left:
                     n = n.left
             return n
+
 
         ##
         # Constructs an iterator starting at the smallest
@@ -381,11 +370,13 @@ class BalancedBSTSet:
             ## Node to be returned by next call to next().
             self.__current = self.getSmallestValue(self.__tree.root())
 
+
         ## Forward iterator.
         def __iter__(self):
             # start out at smallest value
             self.__current = self.getSmallestValue(self.__tree.root())
             return self
+
 
         ##
         # Whether current is not None.
@@ -393,11 +384,12 @@ class BalancedBSTSet:
         def hasNext(self):
             return self.__current is not None
 
+
         ## Return the content of the current node without advancing.
         def peek(self):
-            if self.__current is None:
-                return None
+            if self.__current is None: return None
             return self.__current.data
+
 
         ##
         # Returns current node, which is saved in pending.
@@ -409,9 +401,11 @@ class BalancedBSTSet:
             self.__current = self.__tree.successor(self.__current)
             return self.__pending.data
 
+
         ## For python 2.
         def next(self):
             return self.__next__()
+
 
         ##
         # Removes the node returned by the last call to next().
@@ -424,12 +418,12 @@ class BalancedBSTSet:
         #
         def remove(self):
             if self.__pending is None: raise IndexError
-
             if self.__pending.left and self.__pending.right:
                 self.__current = self.__pending
-
             self.__tree.unlinkNode(self.__pending)
             self.__pending = None
+
+
 
 
 ## Compare two objects.
