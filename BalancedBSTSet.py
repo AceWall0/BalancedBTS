@@ -9,18 +9,16 @@ import sys
 from random import randint
 
 
-
-
 ##
- # Node type for this implementation.
- # @author Wallace Alves dos Santos
+# Node type for this implementation.
+# @author Wallace Alves dos Santos
 class Node:
     ##
-     #  Constructor given a data object and the parent of this node.
-     #
-     #  @param key data object.
-     #  @param parent parent node.
-     #
+    #  Constructor given a data object and the parent of this node.
+    #
+    #  @param key data object.
+    #  @param parent parent node.
+    #
     def __init__(self, key, parent):
         ## Data (object) in this node.
         self.data = key
@@ -37,8 +35,8 @@ class Node:
 
     ## Return a string representation of this node.
     def __repr__(self):
-         return "Node: %s, Size: %d" % \
-               ( self.data, sys.getsizeof(self) )
+        return "Node: %s, Size: %d" % \
+               (self.data, sys.getsizeof(self))
 
     ## Compares the data of this node to a given key.
     #
@@ -46,21 +44,18 @@ class Node:
     #         -1 if the data of this object is smaller than key's or <br>
     #          0 if it is equal
     #
-    def compareTo(self,key):
-        return cmp(self.data,key)
-
-
+    def compareTo(self, key):
+        return cmp(self.data, key)
 
 
 ##
- #@author Wallace Alves dos Santos
- #
+# @author Wallace Alves dos Santos
+#
 class BalancedBSTSet:
 
-
     ##
-     # Constructs an empty binary search tree.
-     #
+    # Constructs an empty binary search tree.
+    #
     def __init__(self, b=False):
         ## Root of this tree.
         self.__root = None
@@ -69,9 +64,9 @@ class BalancedBSTSet:
         self.__size = 0
 
     ##
-     # Returns a read-only view of the root node of this tree.
-     # @return root node of this tree.
-     #
+    # Returns a read-only view of the root node of this tree.
+    # @return root node of this tree.
+    #
     def root(self):
         return self.__root
 
@@ -80,36 +75,36 @@ class BalancedBSTSet:
         return self.__root is None
 
     ##
-     #  Executes an in order traversal of the tree rooted at a given node.
-     #
-     #  @param node root.
-     #  @param arr array for holding the node data.
-     #  @return arr.
-     #
-    def __inOrder ( self, node, arr ):
+    #  Executes an in order traversal of the tree rooted at a given node.
+    #
+    #  @param node root.
+    #  @param arr array for holding the node data.
+    #  @return arr.
+    #
+    def __inOrder(self, node, arr):
         if arr is None: arr = []
-        if ( node != None ):
-            self.__inOrder ( node.left, arr )
-            arr.append ( node )
-            self.__inOrder ( node.right, arr )
+        if node != None:
+            self.__inOrder(node.left, arr)
+            arr.append(node)
+            self.__inOrder(node.right, arr)
 
         return arr
 
     ##
-     # Returns whether the given object is in this tree.
-     #
-     # @param obj given object.
-     # @return True if the object is in the tree, or False otherwise.
-     #
+    # Returns whether the given object is in this tree.
+    #
+    # @param obj given object.
+    # @return True if the object is in the tree, or False otherwise.
+    #
     def __contains__(self, obj):
         return self.findEntry(obj) != None
 
     ##
-     # Adds the given object to this tree.
-     #
-     # @param key given object.
-     # @return True if the object was found, and False otherwise.
-     #
+    # Adds the given object to this tree.
+    #
+    # @param key given object.
+    # @return True if the object was found, and False otherwise.
+    #
     def add(self, key):
         if self.__root is None:
             self.__root = Node(key, None)
@@ -119,18 +114,18 @@ class BalancedBSTSet:
         current = self.__root
         while True:
             comp = current.compareTo(key)
-            if (comp == 0):
+            if comp == 0:
                 # key is already in the tree
                 return False
-            elif (comp > 0):
-                if (current.left != None):
+            elif comp > 0:
+                if current.left != None:
                     current = current.left
                 else:
                     current.left = Node(key, current)
                     self.__size += 1
                     return True
             else:
-                if (current.right != None):
+                if current.right != None:
                     current = current.right
                 else:
                     current.right = Node(key, current)
@@ -138,20 +133,20 @@ class BalancedBSTSet:
                     return True
 
     ## Adds an iterable to the tree.
-    def update(self,lst):
+    def update(self, lst):
         for i in lst:
-            self.add ( i )
+            self.add(i)
 
     ## like lists.
     def append(self, n):
         return self.add(n)
 
     ##
-     # Removes the given object from this tree.
-     #
-     # @param obj given object.
-     # @return True if the object was found, and False otherwise.
-     #
+    # Removes the given object from this tree.
+    #
+    # @param obj given object.
+    # @return True if the object was found, and False otherwise.
+    #
     def remove(self, obj):
         n = self.findEntry(obj)
         if n is None:
@@ -161,36 +156,36 @@ class BalancedBSTSet:
         return True
 
     ##
-     # Returns the node containing key, or None if the key is not
-     # found in the tree.
-     # @param key
-     # @return the node containing key, or None if not found.
-     #
+    # Returns the node containing key, or None if the key is not
+    # found in the tree.
+    # @param key
+    # @return the node containing key, or None if not found.
+    #
     def findEntry(self, key):
         current = self.__root
-        while (current != None):
+        while current != None:
             comp = current.compareTo(key)
-            if (comp == 0):
+            if comp == 0:
                 return current
-            elif (comp > 0):
+            elif comp > 0:
                 current = current.left
             else:
                 current = current.right
         return None
 
     ##
-     # Returns the successor of the given node.
-     # @param n
-     # @return the successor of the given node in this tree,
-     #   or None if there is no successor.
-     #
+    # Returns the successor of the given node.
+    # @param n
+    # @return the successor of the given node in this tree,
+    #   or None if there is no successor.
+    #
     def successor(self, n):
-        if (n == None):
+        if n == None:
             return None
-        elif (n.right != None):
+        elif n.right != None:
             # leftmost entry in right subtree
             current = n.right
-            while (current.left != None):
+            while current.left != None:
                 current = current.left
             return current
         else:
@@ -198,47 +193,47 @@ class BalancedBSTSet:
             # a left child its parent must be the successor
             current = n.parent
             child = n
-            while (current != None and current.right == child):
+            while current != None and current.right == child:
                 child = current
                 current = current.parent
             # either current is None, or child is left child of current
             return current
 
     ##
-     # Removes the given node, preserving the binary search
-     # tree property of the tree.
-     #
-     # @param n node to be removed.
-     #
+    # Removes the given node, preserving the binary search
+    # tree property of the tree.
+    #
+    # @param n node to be removed.
+    #
     def unlinkNode(self, n):
         # first deal with the two-child case copy
         # data from successor up to n, and then delete successor
         # node instead of given node n
         startNode = None
-        if (n.left != None and n.right != None):
+        if n.left != None and n.right != None:
             s = self.successor(n)
             n.data = s.data
-            n = s # causes s to be deleted in code below
+            n = s  # causes s to be deleted in code below
             startNode = s.parent
 
         # n has at most one child
         replacement = None
-        if (n.left != None):
+        if n.left != None:
             replacement = n.left
-        elif (n.right != None):
+        elif n.right != None:
             replacement = n.right
 
         # link replacement on tree in place of node n
         # (replacement may be None)
-        if (n.parent == None):
+        if n.parent == None:
             self.__root = replacement
         else:
-            if (n == n.parent.left):
+            if n == n.parent.left:
                 n.parent.left = replacement
             else:
                 n.parent.right = replacement
 
-        if (replacement != None):
+        if replacement != None:
             replacement.parent = n.parent
 
         self.__size -= 1
@@ -252,11 +247,11 @@ class BalancedBSTSet:
         return self.__size
 
     ## Returns an array containing all of the elements in this tree.
-     # If the collection makes any guarantees as to what order its elements
-     # are returned by its iterator, this method must return the elements in the same order.
-     #
-     # @return a list of node data (keys).
-     #
+    # If the collection makes any guarantees as to what order its elements
+    # are returned by its iterator, this method must return the elements in the same order.
+    #
+    # @return a list of node data (keys).
+    #
     def toArray(self):
         arr = []
         for n in self.iterator():
@@ -264,58 +259,58 @@ class BalancedBSTSet:
         return arr
 
     ## Indexing operator [].
-     #
-     # @throw IndexError.
-     # @param ind index to retrieve.
-     # @return ind-ith value in the tree, or an exception.
-     #
+    #
+    # @throw IndexError.
+    # @param ind index to retrieve.
+    # @return ind-ith value in the tree, or an exception.
+    #
     def __getitem__(self, ind):
         if ind < 0 or ind >= self.__size:
-           raise IndexError
+            raise IndexError
 
-        for i,n in enumerate(self.iterator()):
+        for i, n in enumerate(self.iterator()):
             if i == ind:
-               return n
+                return n
 
     ## Iterator as a generator.
-     #
-     # Generators are functions having an yield keyword.
-     # Any function which has “yield” in it is a generator.
-     #
-     # Generator takes care of creating the iterable.
-     # It also takes care of creating the underlying iterator.
-     # And next() of this iterator() is such that it returns each ‘yield’
-     #
-     # @see https://www.agiliq.com/blog/2017/11/how-python-generators-are-similar-iterators/
-     #
+    #
+    # Generators are functions having an yield keyword.
+    # Any function which has “yield” in it is a generator.
+    #
+    # Generator takes care of creating the iterable.
+    # It also takes care of creating the underlying iterator.
+    # And next() of this iterator() is such that it returns each ‘yield’
+    #
+    # @see https://www.agiliq.com/blog/2017/11/how-python-generators-are-similar-iterators/
+    #
     def __iter__(self):
         for n in self.iterator():
             yield n
 
     ## Return the height of this tree.
-     # The height of a tree is the height of its root node.
-     #
+    # The height of a tree is the height of its root node.
+    #
     def height(self):
         return self.getHeight(self.__root)
 
     ## Return the height of a subtree.
-     # The height of a node is the number of edges on the longest path between that node and a leaf.
-     # The height of a leaf is 0.
-     #
-     # @param root node of the subtree.
-     #
+    # The height of a node is the number of edges on the longest path between that node and a leaf.
+    # The height of a leaf is 0.
+    #
+    # @param root node of the subtree.
+    #
     def getHeight(self, root):
-       if root != None:
-          return 1 + max(self.getHeight(root.left),self.getHeight(root.right))
-       else:
-          return -1
+        if root != None:
+            return 1 + max(self.getHeight(root.left), self.getHeight(root.right))
+        else:
+            return -1
 
     ##
-     # Returns a representation of this tree as a multi-line string.
-     # The tree is drawn with the root at the left and children are
-     # shown top-to-bottom.  Leaves are marked with a "-" and non-leaves
-     # are marked with a "+".
-     #
+    # Returns a representation of this tree as a multi-line string.
+    # The tree is drawn with the root at the left and children are
+    # shown top-to-bottom.  Leaves are marked with a "-" and non-leaves
+    # are marked with a "+".
+    #
     def __repr__(self):
         sb = []
         self.__toStringRec(self.__root, sb, 0)
@@ -329,48 +324,47 @@ class BalancedBSTSet:
         return st
 
     ##
-     # Preorder traversal of the tree that builds a string representation
-     # in the given StringBuilder.
-     #
-     # @param n root of subtree to be traversed.
-     # @param sb list in which to create a string representation.
-     # @param depth depth of the given node in the tree.
-     #
+    # Preorder traversal of the tree that builds a string representation
+    # in the given StringBuilder.
+    #
+    # @param n root of subtree to be traversed.
+    # @param sb list in which to create a string representation.
+    # @param depth depth of the given node in the tree.
+    #
     def __toStringRec(self, n, sb, depth):
-        sb.append("  "*depth)
+        sb.append("  " * depth)
 
         if n is None:
             sb.append("-\n")
             return
 
-        if (n.left is not None or n.right is not None):
+        if n.left is not None or n.right is not None:
             sb.append("+ ")
         else:
             sb.append("- ")
 
         sb.append(str(n))
         sb.append("\n")
-        if (n.left is not None or n.right is not None):
+        if n.left is not None or n.right is not None:
             self.__toStringRec(n.left, sb, depth + 1)
             self.__toStringRec(n.right, sb, depth + 1)
 
-
     ##
-     # Iterator implementation for this binary search tree. The elements
-     # are returned in ascending order according to their natural ordering.
-     #
+    # Iterator implementation for this binary search tree. The elements
+    # are returned in ascending order according to their natural ordering.
+    #
     class BSTIterator(object):
         ## return the smallest value of the tree.
-        def getSmallestValue(self,n):
-            if (n != None):
-                while (n.left != None):
-                       n = n.left
+        def getSmallestValue(self, n):
+            if n != None:
+                while n.left != None:
+                    n = n.left
             return n
 
         ##
-         # Constructs an iterator starting at the smallest
-         # ot largest element in the tree.
-         #
+        # Constructs an iterator starting at the smallest
+        # ot largest element in the tree.
+        #
         def __init__(self, tree):
             ## Node returned by last call to next() and available
             #  for removal. This field is None when no node is
@@ -391,23 +385,23 @@ class BalancedBSTSet:
             return self
 
         ##
-         # Whether current is not None.
-         #
+        # Whether current is not None.
+        #
         def hasNext(self):
             return self.__current != None
 
         ## Return the content of the current node without advancing.
         def peek(self):
             if self.__current is None:
-               return None
+                return None
             return self.__current.data
 
         ##
-         # Returns current node, which is saved in pending.
-         # Current is set to successor(current).
-         #
+        # Returns current node, which is saved in pending.
+        # Current is set to successor(current).
+        #
         def __next__(self):
-            if (not self.hasNext()): raise StopIteration
+            if not self.hasNext(): raise StopIteration
             self.__pending = self.__current
             self.__current = self.__tree.successor(self.__current)
             return self.__pending.data
@@ -417,49 +411,47 @@ class BalancedBSTSet:
             return self.__next__()
 
         ##
-         # Removes the node returned by the last call to next().
-         # Current pos to the successor of
-         # pending, but if pending has two children, then
-         # unlinkNode(pending) will copy the successor's data
-         # o pending and delete the successor node.
-         # So in this case, we want to end up with current
-         # poing to the pending node.
-         #
+        # Removes the node returned by the last call to next().
+        # Current pos to the successor of
+        # pending, but if pending has two children, then
+        # unlinkNode(pending) will copy the successor's data
+        # o pending and delete the successor node.
+        # So in this case, we want to end up with current
+        # poing to the pending node.
+        #
         def remove(self):
             if self.__pending is None: raise IndexError
 
-            if (self.__pending.left != None and self.__pending.right != None):
+            if self.__pending.left != None and self.__pending.right != None:
                 self.__current = self.__pending
 
             self.__tree.unlinkNode(self.__pending)
             self.__pending = None
 
 
-
-
 ## Compare two objects.
- #
- # @return (x > y) - (x < y)
- #
+#
+# @return (x > y) - (x < y)
+#
 def cmp(x, y):
-     """
-     Replacement for built-in function cmp that was removed in Python 3
+    """
+    Replacement for built-in function cmp that was removed in Python 3
 
-     Compare the two objects x and y and return an integer according to
-     the outcome. The return value is negative if x < y, zero if x == y
-     and strictly positive if x > y.
-     """
-     return (x > y) - (x < y)
+    Compare the two objects x and y and return an integer according to
+    the outcome. The return value is negative if x < y, zero if x == y
+    and strictly positive if x > y.
+    """
+    return (x > y) - (x < y)
 
 
 ##
- #  Generates an array with a random size,
- #  filled with random elements.
- #
- #  @param n maximum array size.
- #  @param vrange interval to choose the random elements from.
- #  @return an array.
- #
+#  Generates an array with a random size,
+#  filled with random elements.
+#
+#  @param n maximum array size.
+#  @param vrange interval to choose the random elements from.
+#  @return an array.
+#
 def generateRandomArray(n, vrange):
     v = []
     for i in range(randint(1, n)):
