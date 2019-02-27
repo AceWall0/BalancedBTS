@@ -57,11 +57,10 @@ class BalancedBSTSet:
     # Constructs an empty binary search tree.
     #
     def __init__(self, b=False):
-        ## Root of this tree.
         self.__root = None
-
-        ## Number of elements in this tree.
         self.__size = 0
+        self.selfbalanced = b
+
 
     ##
     # Returns a read-only view of the root node of this tree.
@@ -70,9 +69,11 @@ class BalancedBSTSet:
     def root(self):
         return self.__root
 
+
     ## Return whether this tree is empty.
     def isEmpty(self):
         return self.__root is None
+
 
     ##
     #  Executes an in order traversal of the tree rooted at a given node.
@@ -90,6 +91,7 @@ class BalancedBSTSet:
 
         return arr
 
+
     ##
     # Returns whether the given object is in this tree.
     #
@@ -98,6 +100,7 @@ class BalancedBSTSet:
     #
     def __contains__(self, obj):
         return self.findEntry(obj) is not None
+
 
     ##
     # Adds the given object to this tree.
