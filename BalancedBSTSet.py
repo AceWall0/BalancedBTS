@@ -108,21 +108,13 @@ class BalancedBSTSet:
             return True
 
         current = self.__root
-
         while True:
-            if self.selfbalanced:
-                allowleft = self.__allow_child(current, 'left')
-                allowright = self.__allow_child(current, 'right')
-            else:
-                allowleft = True
-                allowright = True
-
             comp = current.compareTo(key)
             if comp == 0:
                 # key is already in the tree
                 return False
 
-            elif comp > 0 or allowright is False:
+            elif comp > 0:
                 if current.left:
                     current = current.left
                 else:
@@ -131,7 +123,7 @@ class BalancedBSTSet:
                     self.__update_counter(current.left)
                     return True
 
-            elif comp < 0 or allowleft is False:
+            else:
                 if current.right:
                     current = current.right
                 else:
@@ -140,19 +132,16 @@ class BalancedBSTSet:
                     self.__update_counter(current.right)
                     return True
 
-             # raise RuntimeError(f"Something went wrong! The tree couldn't be"
-             #                    f"balanced and sorted at the same time\n Key: {key}")
 
-
-    ## Verify if there is room to add a node in one side when the tree is set to balanced.
+    ## Verify if a subtree is balanced.
     #
     #  @param direction: a string 'left' or 'right'.
     #  @param node: the Node object to verify.
     #
-    def __allow_child(self, x: Node, direction: str):
+    def __isbalanced(self, x: Node, direction: str):
         x_child = getattr(x, direction)
         child_size = x_child.size if x_child else 0
-        return (child_size + 1) * self.bottom <= (x.size + 1) * self.top
+        return child_size * self.bottom <= x.size * self.top
 
     ## Increases or decreases the counter from the parent of a Node until the root.
     #
