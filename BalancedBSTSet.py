@@ -443,6 +443,9 @@ class BalancedBSTSet:
             if self.__pending is None: raise IndexError
             if self.__pending.left and self.__pending.right:
                 self.__current = self.__pending
+
+            # subtract the counter in the parent nodes before unlink it
+            self.__tree.__alter_counter(self.__pending, False)
             self.__tree.unlinkNode(self.__pending)
             self.__pending = None
 
