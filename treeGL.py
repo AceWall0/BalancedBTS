@@ -29,8 +29,10 @@ try:
 except ImportError:
     from BSTSet import BSTSet, generateRandomArray
 from math import sin, cos, pi, pow, fabs
-from random import randint
+from random import randint, seed as randseed
 import sys
+
+randseed(0)
 
 ## background color.
 BACKGROUND = (1.0, 250/255.0, 205/255.0, 0.0)

@@ -29,6 +29,10 @@ class Node:
     def compareTo(self, key):
         return cmp(self.data, key)
 
+    @property
+    def size(self):
+        return self.counter + 1
+
     def __str__(self):
         return str(self.data)
 
@@ -104,34 +108,57 @@ class BalancedBSTSet:
             return True
 
         current = self.__root
+
         while True:
+            if self.selfbalanced:
+                allowleft = self.__allow_child(current, 'left')
+                allowright = self.__allow_child(current, 'right')
+            else:
+                allowleft = True
+                allowright = True
+
             comp = current.compareTo(key)
             if comp == 0:
                 # key is already in the tree
                 return False
-            elif comp > 0:
+
+            elif comp > 0 or allowright is False:
                 if current.left:
                     current = current.left
                 else:
                     current.left = Node(key, current)
                     self.__size += 1
-                    self.__alter_counter(current.left)
+                    self.__update_counter(current.left)
                     return True
-            else:
+
+            elif comp < 0 or allowleft is False:
                 if current.right:
                     current = current.right
                 else:
                     current.right = Node(key, current)
                     self.__size += 1
-                    self.__alter_counter(current.right)
+                    self.__update_counter(current.right)
                     return True
 
+             # raise RuntimeError(f"Something went wrong! The tree couldn't be"
+             #                    f"balanced and sorted at the same time\n Key: {key}")
+
+
+    ## Verify if there is room to add a node in one side when the tree is set to balanced.
+    #
+    #  @param direction: a string 'left' or 'right'.
+    #  @param node: the Node object to verify.
+    #
+    def __allow_child(self, x: Node, direction: str):
+        x_child = getattr(x, direction)
+        child_size = x_child.size if x_child else 0
+        return (child_size + 1) * self.bottom <= (x.size + 1) * self.top
 
     ## Increases or decreases the counter from the parent of a Node until the root.
     #
-    #  @param increase False if you want to decrease
+    #  @param increase False if you want to decrease.
     #
-    def __alter_counter(self, node, increase=True):
+    def __update_counter(self, node, increase=True):
         amount = 1 if increase else -1
         current = node
         if not increase:
@@ -163,7 +190,7 @@ class BalancedBSTSet:
     def remove(self, obj):
         n = self.findEntry(obj)
         if n is None: return False
-        self.__alter_counter(n, increase=False)
+        self.__update_counter(n, increase=False)
         self.unlinkNode(n)
         return True
 
@@ -445,7 +472,7 @@ class BalancedBSTSet:
                 self.__current = self.__pending
 
             # subtract the counter in the parent nodes before unlink it
-            self.__tree.__alter_counter(self.__pending, False)
+            self.__tree.__update_counter(self.__pending, False)
             self.__tree.unlinkNode(self.__pending)
             self.__pending = None
 
