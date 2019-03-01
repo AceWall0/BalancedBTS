@@ -60,6 +60,7 @@ class BalancedBSTSet:
     def root(self):
         return self.__root
 
+
     def rebalance(self, bstnode):
         pass  # TODO!!!
 
@@ -302,6 +303,20 @@ class BalancedBSTSet:
     ## Returns the number of elements in this tree.
     def __len__(self):
         return self.__size
+
+
+    ## Returns an array containing all of the elements in the subtree
+    #
+    # @return a list of Node objects
+    #
+    def subArray(self, node: Node) -> list:
+        left = []
+        right = []
+
+        if node.left: left = self.subArray(node.left)
+        if node.right: right = self.subArray(node.right)
+
+        return left + [node] + right
 
 
     ## Returns an array containing all of the elements in this tree.
