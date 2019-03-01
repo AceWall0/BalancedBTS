@@ -15,10 +15,10 @@ print("Running BalancedBSTSet")
 class Node:
     def __init__(self, data, parent):
         self.data = data
-        self.parent = parent
+        self.parent: Node = parent
         self.counter = 0
-        self.left = None
-        self.right = None
+        self.left: Node = None
+        self.right: Node = None
 
     ## Compares the data of this node to a given key.
     #
@@ -108,11 +108,12 @@ class BalancedBSTSet:
             return True
 
         current = self.__root
+        output = False
         while True:
             comp = current.compareTo(key)
             if comp == 0:
                 # key is already in the tree
-                return False
+                break
 
             elif comp > 0:
                 if current.left:
@@ -121,7 +122,7 @@ class BalancedBSTSet:
                     current.left = Node(key, current)
                     self.__size += 1
                     self.__update_counter(current.left)
-                    return True
+                    break
 
             else:
                 if current.right:
@@ -130,18 +131,41 @@ class BalancedBSTSet:
                     current.right = Node(key, current)
                     self.__size += 1
                     self.__update_counter(current.right)
-                    return True
+                    break
+
+        if self.selfbalanced:
+            unbalanced = self.__find_unbalanced(current)
+            if unbalanced:
+                print('unbalanced node:', unbalanced)
+
+        return output
 
 
-    ## Verify if a subtree is balanced.
+    ## Verify if a Node is balanced.
     #
-    #  @param direction: a string 'left' or 'right'.
-    #  @param node: the Node object to verify.
+    #  @return True if it is balanced.
     #
-    def __isbalanced(self, x: Node, direction: str):
-        x_child = getattr(x, direction)
-        child_size = x_child.size if x_child else 0
-        return child_size * self.bottom <= x.size * self.top
+    def __balanced(self, x: Node):
+        left_size = x.left.size if x.left else 0
+        right_size = x.right.size if x.right else 0
+
+        balan_left = left_size * self.bottom <= x.size * self.top
+        balan_right = right_size * self.bottom <= x.size * self.top
+        return x if (balan_left and balan_right) else None
+
+
+    ## Find the highest Node in the tree that is unbalanced.
+    #
+    #  @returns the unbalanced Node if there is one. Returns None otherwise.
+    def __find_unbalanced(self, x: Node):
+        current = x
+        unb = None
+        while True:
+            if not self.__balanced(current): unb = current
+            if current.parent: current = current.parent
+            else: break
+        return unb
+
 
     ## Increases or decreases the counter from the parent of a Node until the root.
     #
@@ -156,7 +180,6 @@ class BalancedBSTSet:
         while current.parent:
             current = current.parent
             current.counter += amount
-
 
 
     ## Adds an iterable to the tree.
