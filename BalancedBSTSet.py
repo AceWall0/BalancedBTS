@@ -48,7 +48,7 @@ class BalancedBSTSet:
     def __init__(self, b=False, top=2, bottom=3):
         self.__root = None
         self.__size = 0
-        self.isSelfBalanced = b
+        self.selfbalanced = b
         self.top = top
         self.bottom = bottom
 
@@ -60,43 +60,8 @@ class BalancedBSTSet:
     def root(self):
         return self.__root
 
-    ## Rebalance a sub tree or the whole tree if node is not given.
-    def rebalance(self, node=None):
-        if node is None: node = self.__root
-        if node is None: return
-
-        arr = self.__subArray(node)
-        self.__removeSubtree(node)
-        self.__distribute(node, arr)
-
-
-    ## Takes a list of Nodes and distributes on a node.
-    def __distribute(self, parent: Node, nodeList):
-
-        if len(nodeList) == 0: return
-
-        midInd = len(nodeList) // 2
-        midNode = nodeList[midInd]
-
-        leftList = nodeList[:midInd]
-        rightList = nodeList[midInd+1:]
-
-        midNode.left = None
-        midNode.right = None
-        midNode.parent = parent
-        midNode.counter = 0
-
-        if midNode.data < parent.data:
-            parent.left = midNode
-        else:
-            parent.right = midNode
-
-        self.__updateCounter(midNode, 1)
-
-        self.__distribute(midNode, leftList)
-        self.__distribute(midNode, rightList)
-
-
+    def rebalance(self, bstnode):
+        pass  # TODO!!!
 
 
     ## Return whether this tree is empty.
@@ -156,7 +121,7 @@ class BalancedBSTSet:
                 else:
                     current.left = Node(key, current)
                     self.__size += 1
-                    self.__updateCounter(current.left)
+                    self.__update_counter(current.left)
                     break
 
             else:
@@ -165,13 +130,14 @@ class BalancedBSTSet:
                 else:
                     current.right = Node(key, current)
                     self.__size += 1
-                    self.__updateCounter(current.right)
+                    self.__update_counter(current.right)
                     break
 
-        if self.isSelfBalanced:
-            unbalanced = self.__findUnbalanced(current)
+        if self.selfbalanced:
+            unbalanced = self.__find_unbalanced(current)
             if unbalanced:
                 print('unbalanced node:', unbalanced)
+
         return output
 
 
@@ -191,7 +157,7 @@ class BalancedBSTSet:
     ## Find the highest Node in the tree that is unbalanced.
     #
     #  @returns the unbalanced Node if there is one. Returns None otherwise.
-    def __findUnbalanced(self, x: Node):
+    def __find_unbalanced(self, x: Node):
         current = x
         unb = None
         while True:
@@ -202,9 +168,13 @@ class BalancedBSTSet:
 
 
     ## Increases or decreases the counter from the parent of a Node until the root.
-    def __updateCounter(self, node, amount=1):
+    #
+    #  @param increase False if you want to decrease.
+    #
+    def __update_counter(self, node, increase=True):
+        amount = 1 if increase else -1
         current = node
-        if not amount:
+        if not increase:
             current.counter += amount
 
         while current.parent:
@@ -232,7 +202,7 @@ class BalancedBSTSet:
     def remove(self, obj):
         n = self.findEntry(obj)
         if n is None: return False
-        self.__updateCounter(n, amount=-1)
+        self.__update_counter(n, increase=False)
         self.unlinkNode(n)
         return True
 
@@ -281,22 +251,6 @@ class BalancedBSTSet:
                 current = current.parent
             # either current is None, or child is left child of current
             return current
-
-
-    ## removes a subtree and updates the ancestors
-    def __removeSubtree(self, subtree):
-        if type(subtree) == int: subtree = self.findEntry(subtree)
-
-        if subtree == self.__root:
-            self.__root = None
-            self.__size = 0
-        else:
-            parent = subtree.parent
-            self.__updateCounter(subtree, subtree.size)
-            if parent.left == subtree:
-                parent.left = None
-            else:
-                parent.right = None
 
 
     ##
@@ -348,20 +302,6 @@ class BalancedBSTSet:
     ## Returns the number of elements in this tree.
     def __len__(self):
         return self.__size
-
-
-    ## Returns an array containing all of the elements in the subtree
-    #
-    # @return a list of Node objects
-    #
-    def __subArray(self, node: Node) -> list:
-        left = []
-        right = []
-
-        if node.left: left = self.__subArray(node.left)
-        if node.right: right = self.__subArray(node.right)
-
-        return left + [node] + right
 
 
     ## Returns an array containing all of the elements in this tree.
@@ -544,7 +484,7 @@ class BalancedBSTSet:
                 self.__current = self.__pending
 
             # subtract the counter in the parent nodes before unlink it
-            self.__tree.__updateCounter(self.__pending, False)
+            self.__tree.__update_counter(self.__pending, False)
             self.__tree.unlinkNode(self.__pending)
             self.__pending = None
 
