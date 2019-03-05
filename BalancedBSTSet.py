@@ -60,8 +60,33 @@ class BalancedBSTSet:
     def root(self):
         return self.__root
 
-    def rebalance(self, bstnode):
-        pass  # TODO!!!
+
+    ## Rebalance a subtree.
+    #
+    #  @param bstNode A node or a key to rebalance.
+    #  If no node nor key is given, then the BST will be rebalanced by the root.
+    #
+    def rebalance(self, bstNode=None):
+        if type(bstNode) == int:
+            node = self.findEntry(bstNode)
+            if node is None: raise IndexError(f"The key {node} was not found!")
+            else: bstNode = node
+
+        if bstNode is None or bstNode == self.__root:
+            self.__root = self.__distribute(self.__root)
+
+        else:
+            parent = bstNode.parent
+            if parent.left == bstNode:
+                parent.left = self.__distribute(bstNode)
+            else:
+                parent.right = self.__distribute(bstNode)
+
+
+
+    ## Distribute a subtree array into a node slot TODO!
+    def __distribute(self, subtreeArray) -> Node:
+        pass
 
 
     ## Return whether this tree is empty.
