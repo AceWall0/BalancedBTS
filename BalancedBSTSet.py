@@ -73,14 +73,15 @@ class BalancedBSTSet:
             else: bstNode = node
 
         if bstNode is None or bstNode == self.__root:
-            self.__root = self.__distribute(self.__root)
+            self.__root = self.__distribute(self.subArray(self.__root))
 
         else:
             parent = bstNode.parent
+            subArray = self.subArray(bstNode)
             if parent.left == bstNode:
-                parent.left = self.__distribute(bstNode)
+                parent.left = self.__distribute(subArray)
             else:
-                parent.right = self.__distribute(bstNode)
+                parent.right = self.__distribute(subArray)
 
 
     ## Distribute a subtree array into a node slot TODO!
