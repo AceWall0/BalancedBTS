@@ -83,10 +83,21 @@ class BalancedBSTSet:
                 parent.right = self.__distribute(bstNode)
 
 
-
     ## Distribute a subtree array into a node slot TODO!
     def __distribute(self, subtreeArray) -> Node:
         pass
+
+
+    ## Returns an array containing all of the elements in the subtree
+    #
+    # @return a list of Node objects
+    #
+    def subArray(self, node: Node) -> list:
+        left = []
+        right = []
+        if node.left: left = self.subArray(node.left)
+        if node.right: right = self.subArray(node.right)
+        return left + [node] + right
 
 
     ## Return whether this tree is empty.
