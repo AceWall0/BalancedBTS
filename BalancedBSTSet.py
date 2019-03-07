@@ -29,6 +29,13 @@ class Node:
     def compareTo(self, key):
         return cmp(self.data, key)
 
+
+    def updateCounter(self):
+        self.counter = 0
+        if self.left:  self.counter += 1 + self.left.counter
+        if self.right: self.counter += 1 + self.right.counter
+
+
     @property
     def size(self):
         return self.counter + 1
@@ -44,7 +51,7 @@ class Node:
             f"\nNode: {self.data},\n" 
             f"Proportion at left: {leftChildren}/{self.size},\n"
             f"Proportion at right: {rightChildren}/{self.size},\n"
-            f"Size (in memory): {sys.getsizeof(self):d}Bytes, "
+            f"Size (in memory): {sys.getsizeof(self):d}Bytes"
         )
 
         # return "Node: %s, Size: %d" % (self.data, sys.getsizeof(self))
@@ -57,7 +64,7 @@ class BalancedBSTSet:
     def __init__(self, b=False, top=2, bottom=3):
         self.__root = None
         self.__size = 0
-        self.selfbalanced = b
+        self.selfBalanced = b
         self.top = top
         self.bottom = bottom
 
@@ -76,7 +83,7 @@ class BalancedBSTSet:
     #  If no node nor key is given, then the BST will be rebalanced by the root.
     #
     def rebalance(self, bstNode=None):
-        print("Rebalanced!")
+        print("Rebalanced! At the node", bstNode)
         if type(bstNode) == int:
             node = self.findEntry(bstNode)
             if node is None: raise IndexError(f"The key {node} was not found!")
@@ -87,7 +94,7 @@ class BalancedBSTSet:
             self.__root = self.__distribute(subArray)
 
         else:
-            self.__updateCounter(bstNode, -bstNode.size)
+            self.__updateCounter(bstNode)
             parent = bstNode.parent
             subArray = self.subArray(bstNode)
             if parent.left == bstNode:
@@ -185,7 +192,7 @@ class BalancedBSTSet:
                 else:
                     current.left = Node(key, current)
                     self.__size += 1
-                    self.__updateCounter(current.left)
+                    self.__updateCounter(current)
                     break
 
             else:
@@ -194,11 +201,11 @@ class BalancedBSTSet:
                 else:
                     current.right = Node(key, current)
                     self.__size += 1
-                    self.__updateCounter(current.right)
+                    self.__updateCounter(current)
                     break
 
-        if self.selfbalanced:
-            unbalanced = self.__find_unbalanced(current)
+        if self.selfBalanced:
+            unbalanced = self.__findUnbalanced(current)
             if unbalanced:
                 self.rebalance(unbalanced)
 
@@ -218,32 +225,29 @@ class BalancedBSTSet:
         return x if (balan_left and balan_right) else None
 
 
-    ## Find the highest Node in the tree that is unbalanced.
+    ## Find the highest Node in the tree that is unbalanced. Note that it starts looking from the bottom to the top,
+    #  ignoring the branches that wasn't altered.
     #
     #  @returns the unbalanced Node if there is one. Returns None otherwise.
-    def __find_unbalanced(self, x):
+    def __findUnbalanced(self, x):
         current = x
-        unb = None
+        unbalanced = None
         while True:
-            if not self.__balanced(current): unb = current
+            if not self.__balanced(current): unbalanced = current
             if current.parent: current = current.parent
             else: break
-        return unb
+        return unbalanced
 
 
     ## Increases or decreases the counter from the parent of a Node until the root.
     #
     #  @param increase False if you want to decrease.
     #
-    def __updateCounter(self, node, increase=True):
-        amount = 1 if increase else -1
+    def __updateCounter(self, node):
         current = node
-        if not increase:
-            current.counter += amount
-
-        while current.parent:
+        while current:
+            current.updateCounter()
             current = current.parent
-            current.counter += amount
 
 
     ## Adds an iterable to the tree.
@@ -266,8 +270,13 @@ class BalancedBSTSet:
     def remove(self, obj):
         n = self.findEntry(obj)
         if n is None: return False
-        self.__updateCounter(n, increase=False)
         self.unlinkNode(n)
+
+        if self.selfBalanced:
+            unbalanced = self.__findUnbalanced(n)
+            if unbalanced:
+                self.rebalance(unbalanced)
+
         return True
 
 
@@ -354,6 +363,9 @@ class BalancedBSTSet:
 
         if replacement:
             replacement.parent = n.parent
+            self.__updateCounter(replacement)
+        else:
+            self.__updateCounter(n.parent)
 
         self.__size -= 1
 
