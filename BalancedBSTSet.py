@@ -556,10 +556,15 @@ class BalancedBSTSet:
             if self.__pending.left and self.__pending.right:
                 self.__current = self.__pending
 
-            # subtract the counter in the parent nodes before unlink it
-            self.__tree.__updateCounter(self.__pending, False)
+            self.__tree.__updateCounter(self.__pending)
             self.__tree.unlinkNode(self.__pending)
+            parent = self.__pending.parent
             self.__pending = None
+
+            if self.__tree.selfBalanced:
+                unbalanced = self.__tree.__findUnbalanced(parent)
+                if unbalanced:
+                    self.__tree.rebalance(unbalanced)
 
 
 
