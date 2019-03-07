@@ -80,21 +80,24 @@ class BalancedBSTSet:
     ## Rebalance a subtree.
     #
     #  @param bstNode A node or a key to rebalance.
-    #  If no node nor key is given, then the BST will be rebalanced by the root.
+    #  If no node nor key is given, then the tree will be rebalanced by the root.
     #
     def rebalance(self, bstNode=None):
         print("Rebalanced! At the node", bstNode)
+
         if type(bstNode) == int:
             node = self.findEntry(bstNode)
-            if node is None: raise IndexError(f"The key {node} was not found!")
-            else: bstNode = node
+            if node is None:
+                raise IndexError(f"The key {node} was not found!")
+            else:
+                bstNode = node
 
         if bstNode is None or bstNode == self.__root:
             subArray = self.subArray(self.__root)
             self.__root = self.__distribute(subArray)
 
         else:
-            self.__updateCounter(bstNode)
+            # self.__updateCounter(bstNode)
             parent = bstNode.parent
             subArray = self.subArray(bstNode)
             if parent.left == bstNode:
@@ -115,11 +118,12 @@ class BalancedBSTSet:
         midNode = subtreeArray[midInd]
         midNode.parent = parent
 
-        midNode.counter = 0
-        self.__updateCounter(midNode)
-
         midNode.left = self.__distribute(subtreeArray[:midInd], midNode)
         midNode.right = self.__distribute(subtreeArray[midInd+1:], midNode)
+
+        if midNode.left is None or midNode.right is None:
+            self.__updateCounter(midNode)
+
         return midNode
 
 
@@ -212,10 +216,7 @@ class BalancedBSTSet:
         return output
 
 
-    ## Verify if a Node is balanced.
-    #
-    #  @return True if it is balanced.
-    #
+    ## Verify if a Node is balanced. Returns True if it is balanced.
     def __balanced(self, x: Node):
         left_size = x.left.size if x.left else 0
         right_size = x.right.size if x.right else 0
@@ -239,10 +240,7 @@ class BalancedBSTSet:
         return unbalanced
 
 
-    ## Increases or decreases the counter from the parent of a Node until the root.
-    #
-    #  @param increase False if you want to decrease.
-    #
+    ## Updates the counter in the Nodes, starting from bottom to top in the tree.
     def __updateCounter(self, node):
         current = node
         while current:
