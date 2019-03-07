@@ -32,8 +32,8 @@ class Node:
 
     def updateCounter(self):
         self.counter = 0
-        if self.left:  self.counter += 1 + self.left.counter
-        if self.right: self.counter += 1 + self.right.counter
+        if self.left:  self.counter += self.left.size
+        if self.right: self.counter += self.right.size
 
 
     @property
@@ -116,13 +116,12 @@ class BalancedBSTSet:
 
         midInd = len(subtreeArray) // 2
         midNode = subtreeArray[midInd]
-        midNode.parent = parent
 
+        midNode.parent = parent
         midNode.left = self.__distribute(subtreeArray[:midInd], midNode)
         midNode.right = self.__distribute(subtreeArray[midInd+1:], midNode)
 
-        if midNode.left is None or midNode.right is None:
-            self.__updateCounter(midNode)
+        midNode.updateCounter()
 
         return midNode
 
@@ -217,7 +216,7 @@ class BalancedBSTSet:
 
 
     ## Verify if a Node is balanced. Returns True if it is balanced.
-    def __balanced(self, x: Node):
+    def __isBalanced(self, x: Node):
         left_size = x.left.size if x.left else 0
         right_size = x.right.size if x.right else 0
 
@@ -234,7 +233,7 @@ class BalancedBSTSet:
         current = x
         unbalanced = None
         while True:
-            if not self.__balanced(current): unbalanced = current
+            if not self.__isBalanced(current): unbalanced = current
             if current.parent: current = current.parent
             else: break
         return unbalanced
@@ -243,7 +242,7 @@ class BalancedBSTSet:
     ## Updates the counter in the Nodes, starting from bottom to top in the tree.
     def __updateCounter(self, node):
         current = node
-        while current:
+        while current is not None:
             current.updateCounter()
             current = current.parent
 
