@@ -622,7 +622,7 @@ except ImportError:
         return it.iterator()
 
 
-## set intersection given two mutable ordered sequences.
+## Set intersection given two mutable ordered sequences.
  # @see https://docs.python.org/3.0/library/stdtypes.html
  # typesseq - mutable
 def set_intersection(itr1, itr2):
@@ -644,7 +644,7 @@ def set_intersection(itr1, itr2):
     return result
 
 
-## set union given two mutable ordered sequences
+## Set union given two mutable ordered sequences
 def set_union(itr1, itr2):
     p1 = peekable(itr1)
     p2 = peekable(itr2)
@@ -667,8 +667,31 @@ def set_union(itr1, itr2):
 
     while p1.hasNext(): result.append(next(p1))
     while p2.hasNext(): result.append(next(p2))
-
     return result
+
+
+# Set difference given two mutable ordered sequences
+def set_difference(itr1, itr2):
+    p1 = peekable(itr1)
+    p2 = peekable(itr2)
+    result = type(itr1)()
+
+    while p1.hasNext() and p2.hasNext():
+        i1 = p1.peek()
+        i2 = p2.peek()
+
+        if i1 < i2:
+            result.append(i1)
+            next(p1)
+        elif i2 < i1:
+            next(p2)
+        else:
+            next(p1)
+            next(p2)
+
+    while p1.hasNext(): result.append(next(p1))
+    return result
+
 
 
 
