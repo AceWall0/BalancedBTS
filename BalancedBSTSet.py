@@ -613,3 +613,33 @@ def generateRandomArray(n, vrange):
 
 
 # -----------------------------------------------------------
+
+try:
+    from peekable import peekable
+except ImportError:
+    ## return an iterator for a BSTSet.
+    def peekable(it):
+        return it.iterator()
+
+
+## set intersection given two mutable ordered sequences.
+ # @see https://docs.python.org/3.0/library/stdtypes.html
+ # typesseq - mutable
+def set_intersection(itr1, itr2):
+    p1 = peekable(itr1)
+    p2 = peekable(itr2)
+    result = type(itr1)()
+    while p1.hasNext() and p2.hasNext():
+        i1 = p1.peek()
+        i2 = p2.peek()
+
+        if i1 < i2:
+            next(p1)
+        elif i1 > i2:
+            next(p2)
+        else:
+            result.append(i1)
+            next(p1)
+            next(p2)
+    return result
+
