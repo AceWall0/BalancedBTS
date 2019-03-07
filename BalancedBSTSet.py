@@ -1,18 +1,26 @@
 ## @package BalancedBSTSet
 #
 #  @author Wallace Alves dos Santos
-#  @date 25/02/2019
 #
+#  Binary Tree.
 
 from __future__ import print_function
 import sys
 from random import randint
-# raise ImportError
-print("Running BalancedBSTSet")
 
 
-## @author Wallace Alves dos Santos
+##
+ # Node type for this implementation
+ #
+ # @author Wallace Alves dos Santos
+ #
 class Node:
+    ##
+     # Constructor given a data object and the parent of this node.
+     #
+     # @param key data object.
+     # @param parent parent node.
+     #
     def __init__(self, data, parent):
         self.data = data
         self.parent: Node = parent
@@ -31,24 +39,26 @@ class Node:
         return cmp(self.data, key)
 
 
-    # Updates the counter of itself.
+    ## Updates the own counter.
     def updateCounter(self):
         self.counter = 0
         if self.left:  self.counter += self.left.size
         if self.right: self.counter += self.right.size
 
 
+    ## The size of the subtree.
     @property
     def size(self):
         return self.counter + 1
 
+
     def __str__(self):
         return str(self.data)
+
 
     def __repr__(self):
         leftChildren = self.left.size if self.left else 0
         rightChildren = self.right.size if self.right else 0
-
         return (
             f"\nNode: {self.data},\n" 
             f"Proportion at left: {leftChildren}/{self.size},\n"
@@ -691,8 +701,5 @@ def set_difference(itr1, itr2):
 
     while p1.hasNext(): result.append(next(p1))
     return result
-
-
-
 
 
