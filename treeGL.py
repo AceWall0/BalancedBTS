@@ -32,7 +32,7 @@ from math import sin, cos, pi, pow, fabs
 from random import randint, seed as randseed
 import sys
 
-randseed(0)
+randseed(1)
 
 ## background color.
 BACKGROUND = (1.0, 250/255.0, 205/255.0, 0.0)
