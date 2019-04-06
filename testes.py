@@ -11,6 +11,9 @@ class Application:
         self.root = tk.Tk()
         self.root.geometry(f'{width}x{height}')
 
+        self.build_tree()
+
+        # <editor-fold desc="Build widgets">
         self.c = tk.Canvas(self.root, bg='white')
         self.c.pack(padx=0, pady=4, fill='both', expand=1, side='left')
 
@@ -25,13 +28,16 @@ class Application:
 
         self.button1 = tk.Button(self.frame, text="Do something", bd=1)
         self.button1.pack(fill='x', padx=4, pady=2)
+        # </editor-fold>
 
         self.root.bind('<Configure>', self.update)
         self.root.mainloop()
 
-    @property
-    def canvas_size(self):
-        return self.c.winfo_width(), self.c.winfo_height()
+    def build_tree(self):
+        self.tree = bst.BalancedBSTSet()
+
+    def add_node(self, key):
+        self.tree.add(key)
 
     def update(self, a):
         self.c.update()
