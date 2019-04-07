@@ -194,21 +194,21 @@ class BalancedBSTSet:
      # Adds the given object to this tree.
      #
      # @param key given object.
-     # @return A reference to the added node.
+     # @return True if the object was found, and False otherwise.
      #
     def add(self, key):
         if self.__root is None:
             node = Node(key, None)
             self.__root = node
             self.__size += 1
-            return node
+            return False
 
         current = self.__root
         while True:
             comp = current.compareTo(key)
             if comp == 0:
                 # key is already in the tree
-                break
+                return True
 
             elif comp > 0:
                 if current.left:
@@ -235,7 +235,7 @@ class BalancedBSTSet:
             if unbalanced:
                 self.rebalance(unbalanced)
 
-        return node
+        return False
 
 
     ## Verify if a Node is balanced. Returns True if it is.
