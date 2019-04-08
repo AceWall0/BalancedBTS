@@ -81,10 +81,10 @@ class Node:
  # @author Wallace Alves dos Santos
  #
 class BalancedBSTSet:
-    def __init__(self, b=False, top=2, bottom=3):
-        self.__root = None
+    def __init__(self, self_balanced=False, top=2, bottom=3):
+        self.root: Node = None
         self.__size = 0
-        self.selfBalanced = b
+        self.selfBalanced = self_balanced
         self.top = top
         self.bottom = bottom
 
@@ -94,7 +94,7 @@ class BalancedBSTSet:
      # @return root node of this tree.
      #
     def root(self):
-        return self.__root
+        return self.root
 
 
     ##
@@ -112,9 +112,9 @@ class BalancedBSTSet:
             else:
                 bstNode = node
 
-        if bstNode is None or bstNode == self.__root:
-            subArray = self.subArray(self.__root)
-            self.__root = self.__distribute(subArray)
+        if bstNode is None or bstNode == self.root:
+            subArray = self.subArray(self.root)
+            self.root = self.__distribute(subArray)
 
         else:
             parent = bstNode.parent
@@ -161,7 +161,7 @@ class BalancedBSTSet:
 
     ## Return whether this tree is empty.
     def isEmpty(self):
-        return self.__root is None
+        return self.root is None
 
 
     ##
@@ -197,13 +197,13 @@ class BalancedBSTSet:
      # @return True if the object was found, and False otherwise.
      #
     def add(self, key):
-        if self.__root is None:
+        if self.root is None:
             node = Node(key, None)
-            self.__root = node
+            self.root = node
             self.__size += 1
             return False
 
-        current = self.__root
+        current = self.root
         while True:
             comp = current.compareTo(key)
             if comp == 0:
@@ -307,7 +307,7 @@ class BalancedBSTSet:
      # @return the node containing key, or None if not found.
      #
     def findEntry(self, key):
-        current = self.__root
+        current = self.root
         while current:
             comp = current.compareTo(key)
             if comp == 0:
@@ -374,7 +374,7 @@ class BalancedBSTSet:
         # link replacement on tree in place of node n
         # (replacement may be None)
         if n.parent is None:
-            self.__root = replacement
+            self.root = replacement
         else:
             if n == n.parent.left:
                 n.parent.left = replacement
@@ -438,7 +438,7 @@ class BalancedBSTSet:
      # The height of a tree is the height of its root node.
      #
     def height(self):
-        return self.getHeight(self.__root)
+        return self.getHeight(self.root)
 
 
     ## Return the height of a subtree.
@@ -462,7 +462,7 @@ class BalancedBSTSet:
      #
     def __repr__(self):
         sb = []
-        self.__toStringRec(self.__root, sb, 0)
+        self.__toStringRec(self.root, sb, 0)
         return ''.join(sb)
 
 
