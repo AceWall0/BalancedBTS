@@ -12,10 +12,10 @@ class TestBalancedBSTSet(unittest.TestCase):
         self.bst.add(8)
 
     def test_structure(self):
-        self.assertEqual(self.bst.root.data, 3)
-        self.assertEqual(self.bst.root.left.data, 1)
-        self.assertEqual(self.bst.root.right.left.data, 6)
-        self.assertEqual(self.bst.root.right.right.data, 8)
+        self.assertEqual(self.bst.__root.data, 3)
+        self.assertEqual(self.bst.__root.left.data, 1)
+        self.assertEqual(self.bst.__root.right.left.data, 6)
+        self.assertEqual(self.bst.__root.right.right.data, 8)
 
 
 if __name__ == '__main__':
