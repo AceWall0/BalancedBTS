@@ -4,8 +4,7 @@ import BalancedBSTSet as bst
 
 WIDTH = 800
 HEIGHT = 600
-RADIUS = 15
-YDIST = 80
+BASERADIUS = 100
 
 
 class Application:
@@ -29,16 +28,16 @@ class Application:
 
         # Creates tree
         self.tree = bst.BalancedBSTSet()
-        self.tree.add(5)
-        self.tree.add(1)
-        self.tree.add(10)
-        self.tree.add(9)
-        self.tree.add(4)
-        self.tree.add(0)
-        self.tree.add(23)
-        self.tree.add(2)
-        self.tree.add(3)
-        self.tree.add(8)
+        # self.tree.add(5)
+        # self.tree.add(1)
+        # self.tree.add(10)
+        # self.tree.add(9)
+        # self.tree.add(4)
+        # self.tree.add(0)
+        # self.tree.add(23)
+        # self.tree.add(2)
+        # self.tree.add(3)
+        # self.tree.add(8)
 
         self.root.bind('<Configure>', self.update)
         self.root.mainloop()
@@ -46,34 +45,42 @@ class Application:
     def _draw_tree(self, curr_node, level=1):
         if curr_node is None: return
 
-        # If it has no parent, place it at the center
+        # the Y position of the node
+        curr_node.y = level*self.ysep - self.ysep/2
+
+        # the X position of the node
         if curr_node.parent is None:
             curr_node.x = self.c.winfo_width()/2
-
-        # Otherwise, place it on the parent's position deslocated by the proper division on the screen.
         elif curr_node.data < curr_node.parent.data:
-            curr_node.x = curr_node.parent.x - self.c.winfo_width() / (2*level)
+            curr_node.x = curr_node.parent.x - self.c.winfo_width() / (2**level)
         else:
-            curr_node.x = curr_node.parent.x + self.c.winfo_width() / (2*level)
+            curr_node.x = curr_node.parent.x + self.c.winfo_width() / (2**level)
 
-        self._draw_node(level*YDIST, curr_node)
-        self._draw_tree(curr_node.left, level + 1)
-        self._draw_tree(curr_node.right, level + 1)
+        self._draw_node(curr_node)
+        self._draw_tree(curr_node.left, level+1)
+        self._draw_tree(curr_node.right, level+1)
 
 
-    def _draw_node(self, y, node):
-        node.y = y-RADIUS
-        node.circle = self.c.create_oval(node.x-RADIUS,
-                                         node.y-RADIUS,
-                                         node.x+RADIUS,
-                                         node.y+RADIUS,
-                                         fill='red', outline='')
+    def _draw_node(self, node):
+        node.circle = self.c.create_oval(node.x - self.radius,
+                                         node.y - self.radius,
+                                         node.x + self.radius,
+                                         node.y + self.radius,
+                                         fill='red')
+        if node.parent:
+            node.line = self.c.create_line(node.x, node.y, node.parent.x, node.parent.y)
+            self.c.tag_lower(node.line)
+
 
     def add_node(self, key):
         self.tree.add(key)
 
+
     def update(self, _):
         self.c.delete('all')
+        self.scale = 1 / (self.tree.height() + 1)
+        self.radius = BASERADIUS * self.scale
+        self.ysep = self.c.winfo_height() * self.scale
         self._draw_tree(self.tree.root())
         self.c.update()
 
