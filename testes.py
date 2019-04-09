@@ -5,6 +5,9 @@ import BalancedBSTSet as bst
 WIDTH = 800
 HEIGHT = 600
 BASERADIUS = 100
+COLOR1 = '#7F7'
+COLOR2 = '#0A0'
+COLORT = '#020'
 
 
 class Application:
@@ -66,10 +69,20 @@ class Application:
                                          node.y - self.radius,
                                          node.x + self.radius,
                                          node.y + self.radius,
-                                         fill='red')
+                                         width=2, fill=COLOR1, outline=COLOR2)
         if node.parent:
-            node.line = self.c.create_line(node.x, node.y, node.parent.x, node.parent.y)
+            node.line = self.c.create_line(node.x,
+                                           node.y,
+                                           node.parent.x,
+                                           node.parent.y,
+                                           width=2, fill=COLOR2)
             self.c.tag_lower(node.line)
+
+        node.text = self.c.create_text(node.x,
+                                       node.y,
+                                       text=str(node.data),
+                                       font=('Calibri', int(50*self.scale), 'bold'),
+                                       fill=COLORT)
 
 
     def add_node(self, key):
@@ -78,10 +91,13 @@ class Application:
 
     def update(self, _):
         self.c.delete('all')
-        self.scale = 1 / (self.tree.height() + 1)
-        self.radius = BASERADIUS * self.scale
-        self.ysep = self.c.winfo_height() * self.scale
-        self._draw_tree(self.tree.root())
+        height = self.tree.height()
+        if height >= 0:
+            self.scale = 1 / (height + 1)
+            self.radius = BASERADIUS * self.scale
+            self.ysep = self.c.winfo_height() * self.scale
+            self._draw_tree(self.tree.root())
+
         self.c.update()
 
 
