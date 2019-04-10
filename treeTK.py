@@ -7,6 +7,7 @@
 
 # ===== Imports ===========================================
 import tkinter as tk
+import tkinter.ttk as tkk
 import BalancedBSTSet as bst
 
 
@@ -43,29 +44,32 @@ class Application:
     def __init__(self, width=WIDTH, height=HEIGHT):
         self.root = tk.Tk()
         self.root.geometry(f'{width}x{height}')
+        self.root.minsize(400, 400)
 
         # Define widgets =============================================================================
         self.c = tk.Canvas(self.root, bg='white')
-        self.frm_panel = tk.Frame(self.root, width=200, relief='groove', bd=2)
-        self.frm_addrmv = tk.Frame(self.frm_panel, relief='groove', bd=2)
+        self.frm_panel = tkk.Frame(self.root, width=100)
+        self.frm_addrmv = tkk.Frame(self.frm_panel, relief='groove', borderwidth=2)
 
         vcmd = (self.root.register(_is_floatable), '%P')
-        self.ent_entry = tk.Entry(self.frm_addrmv,
-                                  justify='center',
-                                  font=('Calibri', 14),
-                                  validate='key', validatecommand=vcmd,
-                                  width=3)
-        self.btn_add = tk.Button(self.frm_addrmv, text='Add', width=8, command=self.add_node)
-        self.btn_remove = tk.Button(self.frm_addrmv, text='Remove', width=8, command=self.remove_node)
+        self.ent_entry = tkk.Entry(self.frm_addrmv,
+                                   justify='center',
+                                   font=('Calibri', 14),
+                                   validate='key', validatecommand=vcmd,
+                                   width=3)
+        self.btn_add = tkk.Button(self.frm_addrmv, text='Add', width=8, command=self.add_node)
+        self.btn_remove = tkk.Button(self.frm_addrmv, text='Remove', width=8, command=self.remove_node)
         # ---------------------------------------------------------------------------------------------
 
         # Position widgets ============================================================================
-        self.c.pack(padx=0, pady=4, fill='both', expand=1, side='left')
-        self.frm_panel.pack(padx=2, pady=6, fill='y', side='right')
+        self.c.pack(fill='both', expand=1, side='left', padx=0, pady=4)
+
+        self.frm_panel.pack(fill='y', side='right', padx=2, pady=6)
+
         self.frm_addrmv.pack(fill='x', side='top', padx=2, pady=2)
         self.ent_entry.pack(fill='x', side='top', padx=4, pady=4)
-        self.btn_add.pack(side='right', padx=4, pady=4)
-        self.btn_remove.pack(side='left', padx=4, pady=4)
+        self.btn_add.pack(fill='x', side='right', expand=1, padx=4, pady=4)
+        self.btn_remove.pack(fill='x', side='right', expand=1, padx=4, pady=4)
 
 
         self.tree = bst.BalancedBSTSet()
@@ -123,18 +127,22 @@ class Application:
 
     ## Takes the data in the Entry, add it as a node and clears the Entry.
     def add_node(self):
-        key = float(self.ent_entry.get())
-        self.tree.add(key)
-        self.ent_entry.delete(0, 'end')
-        self.update()
+        entry = self.ent_entry.get()
+        if entry:
+            key = float(entry)
+            self.tree.add(key)
+            self.ent_entry.delete(0, 'end')
+            self.update()
 
 
     ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
     def remove_node(self):
-        key = float(self.ent_entry.get())
-        self.tree.remove(key)
-        self.ent_entry.delete(0, 'end')
-        self.update()
+        entry = self.ent_entry.get()
+        if entry:
+            key = float(entry)
+            self.tree.remove(key)
+            self.ent_entry.delete(0, 'end')
+            self.update()
 
 
     ## Calculates all the scales and updates the canvas.
