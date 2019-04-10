@@ -1,23 +1,45 @@
+## @package treeTK.py
+ #
+ # TKinter binary tree.
+ #
+ # @author Wallace Alves dos Santos
+ # @date 10/04/2019
+
+# ===== Imports ===========================================
 import tkinter as tk
 import BalancedBSTSet as bst
 
 
+# ===== Constants =========================================
+# Initial size for the window.
 WIDTH = 800
 HEIGHT = 600
+
+# Base radius for the nodes.
+# Note that this is only a arbitrary number. The actual radius is calculed based on the height of the tree.
+# TODO ...and on the size of the window.
 BASERADIUS = 100
-COLOR1 = '#7F7'
-COLOR2 = '#0A0'
-COLORT = '#020'
+COLOR1 = '#7F7'  # The node's fill color
+COLOR2 = '#0A0'  # The node's outline color
+COLORT = '#020'  # The node's text color
 
 
-def is_float(inp):
-    if inp == '': return True
-    try: float(inp)
-    except ValueError: return False
-    return True
-
-
+# ===== Classes =====================================================
+##
+ # Graphical user interface for the BalancedBSTSet implementation.
+ #      To run:
+ #          - python treeTK.py
+ #
+ # @author Wallace Alves dos Santos
+ # @since 10/04/2019
+ #
 class Application:
+    ##
+     #  Constructs the application
+     #
+     #  @param width The window's width.
+     #  @param height The window's heght.
+     #
     def __init__(self, width=WIDTH, height=HEIGHT):
         self.root = tk.Tk()
         self.root.geometry(f'{width}x{height}')
@@ -27,7 +49,7 @@ class Application:
         self.frm_panel = tk.Frame(self.root, width=200, relief='groove', bd=2)
         self.frm_addrmv = tk.Frame(self.frm_panel, relief='groove', bd=2)
 
-        vcmd = (self.root.register(is_float), '%P')
+        vcmd = (self.root.register(_is_floatable), '%P')
         self.ent_entry = tk.Entry(self.frm_addrmv,
                                   justify='center',
                                   font=('Calibri', 14),
@@ -51,13 +73,20 @@ class Application:
         self.root.mainloop()
 
 
-    def _draw_tree(self, curr_node, level=1):
+    ## Draws the tree recursivaly.
+     #
+     # @param curr_node The node from where to start to draw. Usually, you wanna start from the root.
+     # @param level Used for the recursion to count each time the function goes down one level.
+     # @note Note that all the visual information of the Node in the canvas is stored as the node property.
+     #       Things like the x,y position, or the canvas objects Id's.
+     #
+    def __draw_tree(self, curr_node, level=1):
         if curr_node is None: return
 
-        # the Y position of the node
+        # The Y position of the node.
         curr_node.y = level*self.ysep - self.ysep/2
 
-        # the X position of the node
+        # The X position of the node.
         if curr_node.parent is None:
             curr_node.x = self.c.winfo_width()/2
         elif curr_node.data < curr_node.parent.data:
@@ -66,10 +95,11 @@ class Application:
             curr_node.x = curr_node.parent.x + self.c.winfo_width() / (2**level)
 
         self._draw_node(curr_node)
-        self._draw_tree(curr_node.left, level+1)
-        self._draw_tree(curr_node.right, level+1)
+        self.__draw_tree(curr_node.left, level + 1)
+        self.__draw_tree(curr_node.right, level + 1)
 
 
+    ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def _draw_node(self, node):
         node.circle = self.c.create_oval(node.x - self.radius,
                                          node.y - self.radius,
@@ -86,11 +116,13 @@ class Application:
 
         node.text = self.c.create_text(node.x,
                                        node.y,
-                                       text=str(node.data),
+                                       text=f'{node.data:g}',
                                        font=('Calibri', int(50*self.scale), 'bold'),
                                        fill=COLORT)
 
 
+    ## Takes the data in the Entry, add it as a node and clears the Entry.
+     # @see self.ent_entry
     def add_node(self):
         try:
             key = float(self.ent_entry.get())
@@ -103,6 +135,8 @@ class Application:
         self.update()
 
 
+    ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
+     # @see self.ent_entry
     def remove_node(self):
         try:
             key = float(self.ent_entry.get())
@@ -115,6 +149,7 @@ class Application:
         self.update()
 
 
+    ## Calculates all the scales and updates the canvas.
     def update(self, *_):
         self.c.delete('all')
         height = self.tree.height()
@@ -122,9 +157,18 @@ class Application:
             self.scale = 1 / (height + 1)
             self.radius = BASERADIUS * self.scale
             self.ysep = self.c.winfo_height() * self.scale
-            self._draw_tree(self.tree.root())
-
+            self.__draw_tree(self.tree.root())
         self.c.update()
+
+
+# ====== Functions ===========================================================
+
+## Used to validate the keys in the entry. Allow only entries that can be converted to a float number.
+def _is_floatable(inp):
+    if inp == '': return True
+    try: float(inp)
+    except ValueError: return False
+    return True
 
 
 if __name__ == '__main__':
