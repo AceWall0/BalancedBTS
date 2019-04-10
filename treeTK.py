@@ -122,28 +122,16 @@ class Application:
 
 
     ## Takes the data in the Entry, add it as a node and clears the Entry.
-     # @see self.ent_entry
     def add_node(self):
-        try:
-            key = float(self.ent_entry.get())
-        except ValueError:
-            self.ent_entry.delete(0, 'end')
-            return
-
+        key = float(self.ent_entry.get())
         self.tree.add(key)
         self.ent_entry.delete(0, 'end')
         self.update()
 
 
     ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
-     # @see self.ent_entry
     def remove_node(self):
-        try:
-            key = float(self.ent_entry.get())
-        except ValueError:
-            self.ent_entry.delete(0, 'end')
-            return
-
+        key = float(self.ent_entry.get())
         self.tree.remove(key)
         self.ent_entry.delete(0, 'end')
         self.update()
@@ -162,8 +150,8 @@ class Application:
 
 
 # ====== Functions ===========================================================
-
-## Used to validate the keys in the entry. Allow only entries that can be converted to a float number.
+##
+ # Used to validate the keys in the entry. Allow only entries that can be converted to a float number.
 def _is_floatable(inp):
     if inp == '': return True
     try: float(inp)
@@ -171,5 +159,6 @@ def _is_floatable(inp):
     return True
 
 
+# ===== Main Application ======================================================
 if __name__ == '__main__':
     Application()
