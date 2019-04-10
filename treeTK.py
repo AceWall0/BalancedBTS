@@ -17,17 +17,21 @@ class Application:
 
         # Define widgets
         self.c = tk.Canvas(self.root, bg='white')
-        self.frame = tk.Frame(self.root, width=150, relief='sunken', bd=1)
-        self.label1 = tk.Label(self.frame, text="Hello world")
-        self.entry1 = tk.Entry(self.frame)
-        self.button1 = tk.Button(self.frame, text="Do something", bd=1)
+        self.frm_panel = tk.Frame(self.root, width=200, relief='groove', bd=2)
+
+        self.frm_addrmv = tk.Frame(self.frm_panel, relief='groove', bd=2)
+        self.ent_addrmv = tk.Entry(self.frm_addrmv, justify='center', font=('Calibri', 14), width=3)
+        self.btn_add = tk.Button(self.frm_addrmv, text='Add', width=8)
+        self.btn_remove = tk.Button(self.frm_addrmv, text='Remove', width=8)
 
         # Position widgets
         self.c.pack(padx=0, pady=4, fill='both', expand=1, side='left')
-        self.frame.pack(padx=4, pady=4, fill='y', side='right')
-        self.label1.pack(fill='x', padx=4, pady=2)
-        self.entry1.pack(fill='x', padx=4, pady=2)
-        self.button1.pack(fill='x', padx=4, pady=2)
+        self.frm_panel.pack(padx=2, pady=6, fill='y', side='right')
+
+        self.frm_addrmv.pack(fill='x', side='top', padx=2, pady=2)
+        self.ent_addrmv.pack(fill='x', side='top', padx=4, pady=4)
+        self.btn_add.pack(side='right', padx=4, pady=4)
+        self.btn_remove.pack(side='left', padx=4, pady=4)
 
         # Creates tree
         self.tree = bst.BalancedBSTSet()
@@ -42,7 +46,7 @@ class Application:
         # self.tree.add(3)
         # self.tree.add(8)
 
-        self.root.bind('<Configure>', self.update)
+        self.c.bind('<Configure>', self.update)
         self.root.mainloop()
 
     def _draw_tree(self, curr_node, level=1):
