@@ -10,44 +10,46 @@ COLOR2 = '#0A0'
 COLORT = '#020'
 
 
+def is_float(inp):
+    if inp == '': return True
+    try: float(inp)
+    except ValueError: return False
+    return True
+
+
 class Application:
     def __init__(self, width=WIDTH, height=HEIGHT):
         self.root = tk.Tk()
         self.root.geometry(f'{width}x{height}')
 
-        # Define widgets
+        # Define widgets =============================================================================
         self.c = tk.Canvas(self.root, bg='white')
         self.frm_panel = tk.Frame(self.root, width=200, relief='groove', bd=2)
-
         self.frm_addrmv = tk.Frame(self.frm_panel, relief='groove', bd=2)
-        self.ent_addrmv = tk.Entry(self.frm_addrmv, justify='center', font=('Calibri', 14), width=3)
-        self.btn_add = tk.Button(self.frm_addrmv, text='Add', width=8)
-        self.btn_remove = tk.Button(self.frm_addrmv, text='Remove', width=8)
 
-        # Position widgets
+        vcmd = (self.root.register(is_float), '%P')
+        self.ent_entry = tk.Entry(self.frm_addrmv,
+                                  justify='center',
+                                  font=('Calibri', 14),
+                                  validate='key', validatecommand=vcmd,
+                                  width=3)
+        self.btn_add = tk.Button(self.frm_addrmv, text='Add', width=8, command=self.add_node)
+        self.btn_remove = tk.Button(self.frm_addrmv, text='Remove', width=8, command=self.remove_node)
+        # ---------------------------------------------------------------------------------------------
+
+        # Position widgets ============================================================================
         self.c.pack(padx=0, pady=4, fill='both', expand=1, side='left')
         self.frm_panel.pack(padx=2, pady=6, fill='y', side='right')
-
         self.frm_addrmv.pack(fill='x', side='top', padx=2, pady=2)
-        self.ent_addrmv.pack(fill='x', side='top', padx=4, pady=4)
+        self.ent_entry.pack(fill='x', side='top', padx=4, pady=4)
         self.btn_add.pack(side='right', padx=4, pady=4)
         self.btn_remove.pack(side='left', padx=4, pady=4)
 
-        # Creates tree
-        self.tree = bst.BalancedBSTSet()
-        # self.tree.add(5)
-        # self.tree.add(1)
-        # self.tree.add(10)
-        # self.tree.add(9)
-        # self.tree.add(4)
-        # self.tree.add(0)
-        # self.tree.add(23)
-        # self.tree.add(2)
-        # self.tree.add(3)
-        # self.tree.add(8)
 
+        self.tree = bst.BalancedBSTSet()
         self.c.bind('<Configure>', self.update)
         self.root.mainloop()
+
 
     def _draw_tree(self, curr_node, level=1):
         if curr_node is None: return
@@ -89,11 +91,31 @@ class Application:
                                        fill=COLORT)
 
 
-    def add_node(self, key):
+    def add_node(self):
+        try:
+            key = float(self.ent_entry.get())
+        except ValueError:
+            self.ent_entry.delete(0, 'end')
+            return
+
         self.tree.add(key)
+        self.ent_entry.delete(0, 'end')
+        self.update()
 
 
-    def update(self, _):
+    def remove_node(self):
+        try:
+            key = float(self.ent_entry.get())
+        except ValueError:
+            self.ent_entry.delete(0, 'end')
+            return
+
+        self.tree.remove(key)
+        self.ent_entry.delete(0, 'end')
+        self.update()
+
+
+    def update(self, *_):
         self.c.delete('all')
         height = self.tree.height()
         if height >= 0:
