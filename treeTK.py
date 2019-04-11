@@ -52,11 +52,13 @@ class Application:
         self.frm_addrmv = tkk.Frame(self.frm_panel, relief='groove', borderwidth=2)
 
         vcmd = (self.root.register(_is_floatable), '%P')
-        self.ent_entry = tkk.Entry(self.frm_addrmv,
-                                   justify='center',
-                                   font=('Calibri', 14),
-                                   validate='key', validatecommand=vcmd,
-                                   width=3)
+        self.entry1 = tkk.Entry(self.frm_addrmv,
+                                justify='center',
+                                font=('Calibri', 14),
+                                validate='key', validatecommand=vcmd,
+                                width=3)
+        self.entry1.bind('<KeyPress-Return>', self._add_or_remove)
+
         self.btn_add = tkk.Button(self.frm_addrmv, text='Add', width=8, command=self.add_node)
         self.btn_remove = tkk.Button(self.frm_addrmv, text='Remove', width=8, command=self.remove_node)
         # ---------------------------------------------------------------------------------------------
@@ -67,7 +69,7 @@ class Application:
         self.frm_panel.pack(fill='y', side='right', padx=2, pady=6)
 
         self.frm_addrmv.pack(fill='x', side='top', padx=2, pady=2)
-        self.ent_entry.pack(fill='x', side='top', padx=4, pady=4)
+        self.entry1.pack(fill='x', side='top', padx=4, pady=4)
         self.btn_add.pack(fill='x', side='right', expand=1, padx=4, pady=4)
         self.btn_remove.pack(fill='x', side='right', expand=1, padx=4, pady=4)
 
@@ -127,21 +129,32 @@ class Application:
 
     ## Takes the data in the Entry, add it as a node and clears the Entry.
     def add_node(self):
-        entry = self.ent_entry.get()
+        entry = self.entry1.get()
         if entry:
             key = float(entry)
             self.tree.add(key)
-            self.ent_entry.delete(0, 'end')
+            self.entry1.delete(0, 'end')
             self.update()
 
 
     ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
     def remove_node(self):
-        entry = self.ent_entry.get()
+        entry = self.entry1.get()
         if entry:
             key = float(entry)
             self.tree.remove(key)
-            self.ent_entry.delete(0, 'end')
+            self.entry1.delete(0, 'end')
+            self.update()
+
+
+    ## Called when the Enter key is pressed in the Entry.
+     # Add the node from the entry in the tree if it is not in the tree yet. Remove from the tree otherwise.
+    def _add_or_remove(self, _):
+        entry = self.entry1.get()
+        if entry:
+            key = float(entry)
+            if key in self.tree: self.tree.remove(key)
+            else: self.tree.add(key)
             self.update()
 
 
