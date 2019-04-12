@@ -95,6 +95,7 @@ class Application:
         self.rebalanceBtn = ttk.Button(self.panel, text='Rebalance', command=self.rebalance)
         self.randomBtn = ttk.Button(self.panel, text='Add Random', command=self.addRandom)
 
+
         self.addRemoveFR = ttk.Frame(self.panel, borderwidth=1, relief='solid')
         vcmd = (self.root.register(_isFloatable), '%P')
         self.entry1 = ttk.Entry(self.addRemoveFR,
@@ -160,7 +161,7 @@ class Application:
     ## Takes the data in the Entry, add it as a node and clears the Entry.
     def addNode(self):
         entry = self.entry1.get()
-        if entry:
+        if entry and entry != '-':
             key = float(entry)
             self.tree.add(key)
             self.entry1.delete(0, 'end')
@@ -171,7 +172,7 @@ class Application:
     ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
     def removeNode(self):
         entry = self.entry1.get()
-        if entry:
+        if entry and entry != '-':
             key = float(entry)
             self.tree.remove(key)
             self.entry1.delete(0, 'end')
@@ -181,9 +182,9 @@ class Application:
 
     ## Add a random number into the tree.
     def addRandom(self):
-        key = r.randint(0, 99)
+        key = r.randint(-99, 99)
         while self.tree.add(key):
-            key += r.randint(0, 99)/10
+            key += r.randint(-99, 99)/100
         self.update()
 
 
@@ -205,7 +206,7 @@ class Application:
      # Add the node from the entry in the tree if it is not in the tree yet. Remove from the tree otherwise.
     def _add_remove(self, _):
         entry = self.entry1.get()
-        if entry:
+        if entry and entry != '-':
             key = float(entry)
             if key in self.tree: self.tree.remove(key)
             else: self.tree.add(key)
@@ -216,8 +217,8 @@ class Application:
     ## Called when the Auto Balanced checkbox is changed
      # Changes the property "selfBalanced" from the bst object.
     def _autoBalancedHandler(self):
-        self.tree.selfBalanced = self.autoBalVar
-        if self.autoBalVar:
+        self.tree.selfBalanced = self.autoBalVar.get()
+        if self.autoBalVar.get():
             self.tree.rebalance()
             self.update()
 
@@ -238,7 +239,7 @@ class Application:
 ##
  # Used to validate the keys in the entry. Allow only entries that can be converted to a float number.
 def _isFloatable(inp):
-    if inp == '': return True
+    if inp == '' or inp == '-': return True
     try: float(inp)
     except ValueError: return False
     return True
