@@ -9,6 +9,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 import BalancedBSTSet as bst
+import random as r
 
 
 # ===== Constants =========================================
@@ -86,11 +87,13 @@ class Application:
         self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
 
         self.autoBalVar = tk.BooleanVar()
-        self.autoBalCB = ttk.Checkbutton(self.panel, text='Auto balanced', variable=self.autoBalVar)
+        self.autoBalCB = ttk.Checkbutton(self.panel, text='Auto balanced',
+                                         variable=self.autoBalVar, command=self._autoBalancedHandler)
+
         self.separator1 = ttk.Separator(self.panel, orient='horizontal')
-        self.clearBtn = ttk.Button(self.panel, text='Clear tree')
-        self.rebalanceBtn = ttk.Button(self.panel, text='Rebalance')
-        self.randomBtn = ttk.Button(self.panel, text='Add random')
+        self.clearBtn = ttk.Button(self.panel, text='Clear', command=self.clear)
+        self.rebalanceBtn = ttk.Button(self.panel, text='Rebalance', command=self.rebalance)
+        self.randomBtn = ttk.Button(self.panel, text='Add Random', command=self.addRandom)
 
         self.addRemoveFR = ttk.Frame(self.panel, borderwidth=1, relief='solid')
         vcmd = (self.root.register(_isFloatable), '%P')
@@ -142,24 +145,16 @@ class Application:
             fillColor = COLOR2A
             outlineColor = COLOR2B
 
-        node.circle = self.canvas.create_oval(node.x - self.radius,
-                                              node.y - self.radius,
-                                              node.x + self.radius,
-                                              node.y + self.radius,
+        node.circle = self.canvas.create_oval(node.x - self.radius, node.y - self.radius,
+                                              node.x + self.radius, node.y + self.radius,
                                               width=2, fill=fillColor, outline=outlineColor)
         if node.parent:
-            node.line = self.canvas.create_line(node.x,
-                                                node.y,
-                                                node.parent.x,
-                                                node.parent.y,
+            node.line = self.canvas.create_line(node.x, node.y, node.parent.x, node.parent.y,
                                                 width=2, fill=COLOR1B)
             self.canvas.tag_lower(node.line)
 
-        node.text = self.canvas.create_text(node.x,
-                                            node.y,
-                                            text=f'{node.data:g}',
-                                            font=('Calibri', int(50*self.scale), 'bold'),
-                                            fill=COLORT)
+        node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=COLORT,
+                                            font=('Calibri', int(50*self.scale), 'bold'))
 
 
     ## Takes the data in the Entry, add it as a node and clears the Entry.
@@ -170,6 +165,7 @@ class Application:
             self.tree.add(key)
             self.entry1.delete(0, 'end')
             self.update()
+        self.entry1.focus_set()
 
 
     ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
@@ -180,6 +176,29 @@ class Application:
             self.tree.remove(key)
             self.entry1.delete(0, 'end')
             self.update()
+        self.entry1.focus_set()
+
+
+    ## Add a random number into the tree.
+    def addRandom(self):
+        key = r.randint(0, 99)
+        while self.tree.add(key):
+            key += r.randint(0, 99)/10
+        self.update()
+
+
+    ## Clears the tree.
+    def clear(self):
+        self.canvas.delete('all')
+        for node in self.tree:
+            self.tree.remove(node)
+        self.canvas.update()
+
+
+    ## Rebalances the whole tree.
+    def rebalance(self):
+        self.tree.rebalance()
+        self.update()
 
 
     ## Called when the Enter key is pressed in the Entry.
@@ -191,6 +210,15 @@ class Application:
             if key in self.tree: self.tree.remove(key)
             else: self.tree.add(key)
             self.entry1.delete(0, 'end')
+            self.update()
+
+
+    ## Called when the Auto Balanced checkbox is changed
+     # Changes the property "selfBalanced" from the bst object.
+    def _autoBalancedHandler(self):
+        self.tree.selfBalanced = self.autoBalVar
+        if self.autoBalVar:
+            self.tree.rebalance()
             self.update()
 
 
