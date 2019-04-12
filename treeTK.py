@@ -16,13 +16,22 @@ import BalancedBSTSet as bst
 WIDTH = 800
 HEIGHT = 600
 
-# Base radius for the nodes.
-# Note that this is only a arbitrary number. The actual radius is calculed based on the height of the tree.
-# TODO ...and on the size of the window.
-BASERADIUS = 100
-COLOR1 = '#7F7'  # The node's fill color
-COLOR2 = '#0A0'  # The node's outline color
-COLORT = '#020'  # The node's text color
+BASERADIUS = 100  # Base radius for the nodes.
+
+# Node colors -----
+COLOR1A = '#5C5'  # Fill
+COLOR1B = '#070'  # Outline
+
+# Unbalanced colors
+COLOR2A = 'pink'  # Fill
+COLOR2B = 'red'   # Outline
+
+# Leaf colors -----
+COLOR3A = '#7F7'  # Fill
+COLOR3B = '#3A3'  # Outline
+
+COLORT = '#020'   # The node's text color
+# -----------------------------------------------------------
 
 
 # ===== Classes =====================================================
@@ -78,6 +87,10 @@ class Application:
 
         self.autoBalVar = tk.BooleanVar()
         self.autoBalCB = ttk.Checkbutton(self.panel, text='Auto balanced', variable=self.autoBalVar)
+        self.separator1 = ttk.Separator(self.panel, orient='horizontal')
+        self.clearBtn = ttk.Button(self.panel, text='Clear tree')
+        self.rebalanceBtn = ttk.Button(self.panel, text='Rebalance')
+        self.randomBtn = ttk.Button(self.panel, text='Add random')
 
         self.addRemoveFR = ttk.Frame(self.panel, borderwidth=1, relief='solid')
         vcmd = (self.root.register(_isFloatable), '%P')
@@ -96,10 +109,15 @@ class Application:
         # Position widgets ============================================================================
         self.canvas.pack(fill='both', expand=1, side='left', padx=0, pady=4)
 
-        self.panel.pack(fill='y', side='right', padx=2, pady=6)
-        self.autoBalCB.pack(fill='x', padx=2, pady=2)
+        xpad = 4
+        self.panel.pack(fill='y', side='right', padx=xpad, pady=6)
+        self.autoBalCB.pack(fill='x', padx=xpad, pady=2)
+        self.separator1.pack(fill='x', pady=2)
+        self.clearBtn.pack(fill='x', padx=xpad, pady=2)
+        self.rebalanceBtn.pack(fill='x', padx=xpad, pady=2)
+        self.randomBtn.pack(fill='x', padx=xpad, pady=2)
 
-        self.addRemoveFR.pack(fill='x', side='top', padx=2, pady=2)
+        self.addRemoveFR.pack(fill='x', side='top', padx=xpad, pady=8)
         self.addRemoveFR.grid_columnconfigure(1, weight=1)
         self.infoBtn.grid(row=0, column=0, padx=4, pady=4, sticky='ns')
         self.entry1.grid(row=0, column=1, columnspan=3, padx=4, pady=4, sticky='we')
@@ -113,17 +131,28 @@ class Application:
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def _drawNode(self, node):
+        fillColor = COLOR1A
+        outlineColor = COLOR1B
+
+        if node.counter == 0:
+            fillColor = COLOR3A
+            outlineColor = COLOR3B
+
+        if not self.tree.isBalanced(node):
+            fillColor = COLOR2A
+            outlineColor = COLOR2B
+
         node.circle = self.canvas.create_oval(node.x - self.radius,
                                               node.y - self.radius,
                                               node.x + self.radius,
                                               node.y + self.radius,
-                                              width=2, fill=COLOR1, outline=COLOR2)
+                                              width=2, fill=fillColor, outline=outlineColor)
         if node.parent:
             node.line = self.canvas.create_line(node.x,
                                                 node.y,
                                                 node.parent.x,
                                                 node.parent.y,
-                                                width=2, fill=COLOR2)
+                                                width=2, fill=COLOR1B)
             self.canvas.tag_lower(node.line)
 
         node.text = self.canvas.create_text(node.x,

@@ -239,7 +239,7 @@ class BalancedBSTSet:
 
 
     ## Verify if a Node is balanced. Returns True if it is.
-    def __isBalanced(self, x: Node):
+    def isBalanced(self, x: Node):
         left_size = x.left.size if x.left else 0
         right_size = x.right.size if x.right else 0
 
@@ -256,7 +256,7 @@ class BalancedBSTSet:
         current = x
         unbalanced = None
         while True:
-            if not self.__isBalanced(current): unbalanced = current
+            if not self.isBalanced(current): unbalanced = current
             if current.parent: current = current.parent
             else: break
         return unbalanced
