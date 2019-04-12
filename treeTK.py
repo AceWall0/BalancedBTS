@@ -86,11 +86,18 @@ class Application:
 
         self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
 
+        self.configFrame = ttk.LabelFrame(self.panel, text=' Config ')
         self.autoBalVar = tk.BooleanVar()
-        self.autoBalCB = ttk.Checkbutton(self.panel, text='Auto balanced',
+        self.autoBalCB = ttk.Checkbutton(self.configFrame, text='Auto balanced',
                                          variable=self.autoBalVar, command=self._autoBalancedHandler)
 
-        self.separator1 = ttk.Separator(self.panel, orient='horizontal')
+        self.alphaFrame = ttk.LabelFrame(self.configFrame, text='Alpha')
+        self.topLabel = ttk.Label(self.alphaFrame, text='Numarator: ')
+        self.bottomLabel = ttk.Label(self.alphaFrame, text='Denominator: ')
+        self.topSpin = ttk.Spinbox(self.alphaFrame, width=3, increment=1, from_=1, to=50, state='readonly')
+        self.bottomSpin = ttk.Spinbox(self.alphaFrame, width=3, increment=1, from_=1, to=50, state='readonly')
+
+
         self.clearBtn = ttk.Button(self.panel, text='Clear', command=self.clear)
         self.rebalanceBtn = ttk.Button(self.panel, text='Rebalance', command=self.rebalance)
         self.randomBtn = ttk.Button(self.panel, text='Add Random', command=self.addRandom)
@@ -115,8 +122,15 @@ class Application:
 
         xpad = 4
         self.panel.pack(fill='y', side='right', padx=xpad, pady=6)
+        self.configFrame.pack(fill='x', padx=xpad, pady=4)
         self.autoBalCB.pack(fill='x', padx=xpad, pady=2)
-        self.separator1.pack(fill='x', pady=2)
+
+        self.alphaFrame.pack(fill='x', padx=2, pady=2, ipady=2)
+        self.topLabel.grid(row=0, column=0, padx=2, pady=1, sticky='w')
+        self.bottomLabel.grid(row=1, column=0, padx=2, pady=1, sticky='w')
+        self.topSpin.grid(row=0, column=1, padx=2, pady=1, sticky='e')
+        self.bottomSpin.grid(row=1, column=1, padx=2, pady=1, sticky='e')
+
         self.clearBtn.pack(fill='x', padx=xpad, pady=2)
         self.rebalanceBtn.pack(fill='x', padx=xpad, pady=2)
         self.randomBtn.pack(fill='x', padx=xpad, pady=2)
