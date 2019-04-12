@@ -41,23 +41,23 @@ class Application:
      #  @param width The window's width.
      #  @param height The window's heght.
      #
-    def __draw_tree(self, curr_node, level=1):
-        if curr_node is None: return
+    def __drawTree(self, currNode, level=1):
+        if currNode is None: return
 
         # The Y position of the node.
-        curr_node.y = level*self.ysep - self.ysep/2
+        currNode.y = level * self.ysep - self.ysep / 2
 
         # The X position of the node.
-        if curr_node.parent is None:
-            curr_node.x = self.canvas.winfo_width() / 2
-        elif curr_node.data < curr_node.parent.data:
-            curr_node.x = curr_node.parent.x - self.canvas.winfo_width() / (2 ** level)
+        if currNode.parent is None:
+            currNode.x = self.canvas.winfo_width() / 2
+        elif currNode.data < currNode.parent.data:
+            currNode.x = currNode.parent.x - self.canvas.winfo_width() / (2 ** level)
         else:
-            curr_node.x = curr_node.parent.x + self.canvas.winfo_width() / (2 ** level)
+            currNode.x = currNode.parent.x + self.canvas.winfo_width() / (2 ** level)
 
-        self._draw_node(curr_node)
-        self.__draw_tree(curr_node.left, level + 1)
-        self.__draw_tree(curr_node.right, level + 1)
+        self._drawNode(currNode)
+        self.__drawTree(currNode.left, level + 1)
+        self.__drawTree(currNode.right, level + 1)
 
 
     ## Draws the tree recursivaly.
@@ -73,44 +73,46 @@ class Application:
 
         # Define widgets =============================================================================
         self.canvas = tk.Canvas(self.root, bg='white')
-        self.panel = ttk.Frame(self.root, width=100)
 
-        self.addrmv_frame = ttk.LabelFrame(self.panel, text=' Node options ', relief='solid', borderwidth=1)
+        self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
 
-        vcmd = (self.root.register(_is_floatable), '%P')
-        self.entry1 = ttk.Entry(self.addrmv_frame,
+        self.autoBalVar = tk.BooleanVar()
+        self.autoBalCB = ttk.Checkbutton(self.panel, text='Auto balanced', variable=self.autoBalVar)
+
+        self.addRemoveFR = ttk.Frame(self.panel, borderwidth=1, relief='solid')
+        vcmd = (self.root.register(_isFloatable), '%P')
+        self.entry1 = ttk.Entry(self.addRemoveFR,
                                 justify='center',
                                 font=('Calibri', 14),
                                 validate='key', validatecommand=vcmd,
                                 width=3)
-        self.entry1.bind('<KeyPress-Return>', self._add_or_remove)
+        self.entry1.bind('<KeyPress-Return>', self._add_remove)
 
-        self.btn_info = ttk.Button(self.addrmv_frame, text='?', width='1')
-        self.btn_add = ttk.Button(self.addrmv_frame, text='Add', width=8, command=self.add_node)
-        self.btn_remove = ttk.Button(self.addrmv_frame, text='Remove', width=8, command=self.remove_node)
+        self.infoBtn = ttk.Button(self.addRemoveFR, text='?', width='1')
+        self.addBtn = ttk.Button(self.addRemoveFR, text='Add', width=8, command=self.addNode)
+        self.removeBtn = ttk.Button(self.addRemoveFR, text='Remove', width=8, command=self.removeNode)
         # ---------------------------------------------------------------------------------------------
 
         # Position widgets ============================================================================
         self.canvas.pack(fill='both', expand=1, side='left', padx=0, pady=4)
 
         self.panel.pack(fill='y', side='right', padx=2, pady=6)
+        self.autoBalCB.pack(fill='x', padx=2, pady=2)
 
-        self.addrmv_frame.pack(fill='x', side='top', padx=2, pady=2)
-        self.addrmv_frame.grid_columnconfigure(1, weight=1)
-        self.btn_info.grid(row=0, column=0, padx=4, pady=4, sticky='ns')
+        self.addRemoveFR.pack(fill='x', side='top', padx=2, pady=2)
+        self.addRemoveFR.grid_columnconfigure(1, weight=1)
+        self.infoBtn.grid(row=0, column=0, padx=4, pady=4, sticky='ns')
         self.entry1.grid(row=0, column=1, columnspan=3, padx=4, pady=4, sticky='we')
-        self.btn_remove.grid(row=1, column=0, columnspan=2, padx=4, pady=4)
-        self.btn_add.grid(row=1, column=2, columnspan=2, padx=4, pady=4)
-
+        self.removeBtn.grid(row=1, column=0, columnspan=2, padx=4, pady=4)
+        self.addBtn.grid(row=1, column=2, columnspan=2, padx=4, pady=4)
 
         self.tree = bst.BalancedBSTSet()
         self.canvas.bind('<Configure>', self.update)
         self.root.mainloop()
-    #
 
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
-    def _draw_node(self, node):
+    def _drawNode(self, node):
         node.circle = self.canvas.create_oval(node.x - self.radius,
                                               node.y - self.radius,
                                               node.x + self.radius,
@@ -132,7 +134,7 @@ class Application:
 
 
     ## Takes the data in the Entry, add it as a node and clears the Entry.
-    def add_node(self):
+    def addNode(self):
         entry = self.entry1.get()
         if entry:
             key = float(entry)
@@ -142,7 +144,7 @@ class Application:
 
 
     ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
-    def remove_node(self):
+    def removeNode(self):
         entry = self.entry1.get()
         if entry:
             key = float(entry)
@@ -153,12 +155,13 @@ class Application:
 
     ## Called when the Enter key is pressed in the Entry.
      # Add the node from the entry in the tree if it is not in the tree yet. Remove from the tree otherwise.
-    def _add_or_remove(self, _):
+    def _add_remove(self, _):
         entry = self.entry1.get()
         if entry:
             key = float(entry)
             if key in self.tree: self.tree.remove(key)
             else: self.tree.add(key)
+            self.entry1.delete(0, 'end')
             self.update()
 
 
@@ -170,14 +173,14 @@ class Application:
             self.scale = 1 / (height + 1)
             self.radius = BASERADIUS * self.scale
             self.ysep = self.canvas.winfo_height() * self.scale
-            self.__draw_tree(self.tree.root())
+            self.__drawTree(self.tree.root())
         self.canvas.update()
 
 
 # ====== Functions ===========================================================
 ##
  # Used to validate the keys in the entry. Allow only entries that can be converted to a float number.
-def _is_floatable(inp):
+def _isFloatable(inp):
     if inp == '': return True
     try: float(inp)
     except ValueError: return False
