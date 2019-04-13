@@ -51,58 +51,43 @@ class Application:
      #  @param width The window's width.
      #  @param height The window's heght.
      #
-    def __drawTree(self, currNode, level=1):
-        if currNode is None: return
-
-        # The Y position of the node.
-        currNode.y = level * self.ysep - self.ysep / 2
-
-        # The X position of the node.
-        if currNode.parent is None:
-            currNode.x = self.canvas.winfo_width() / 2
-        elif currNode.data < currNode.parent.data:
-            currNode.x = currNode.parent.x - self.canvas.winfo_width() / (2 ** level)
-        else:
-            currNode.x = currNode.parent.x + self.canvas.winfo_width() / (2 ** level)
-
-        self._drawNode(currNode)
-        self.__drawTree(currNode.left, level + 1)
-        self.__drawTree(currNode.right, level + 1)
-
-
-    ## Draws the tree recursivaly.
-     #
-     # @param curr_node The node from where to start to draw. Usually, you wanna start from the root.
-     # @param level Used for the recursion to count each time the function goes down one level.
-     # @note Note that all the visual information of the Node in the canvas is stored as the node property.
-     #       Things like the x,y position, or the canvas objects Id's.
     def __init__(self, width=WIDTH, height=HEIGHT):
         self.root = tk.Tk()
         self.root.geometry(f'{width}x{height}')
         self.root.minsize(400, 400)
+        self.tree = bst.BalancedBSTSet()
 
         # Define widgets =============================================================================
         self.canvas = tk.Canvas(self.root, bg='white')
-
         self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
 
         self.configFrame = ttk.LabelFrame(self.panel, text=' Config ')
         self.autoBalVar = tk.BooleanVar()
         self.autoBalCB = ttk.Checkbutton(self.configFrame, text='Auto balanced',
-                                         variable=self.autoBalVar, command=self._autoBalancedHandler)
+                                         variable=self.autoBalVar, command=self.__autoBalancedHandler)
 
-        self.alphaFrame = ttk.LabelFrame(self.configFrame, text='Alpha')
+        # ...... Alpha Frame .........................................................................
+        self.alphaFrame = ttk.LabelFrame(self.configFrame, text=' Alpha ')
+
         self.topLabel = ttk.Label(self.alphaFrame, text='Numarator: ')
         self.bottomLabel = ttk.Label(self.alphaFrame, text='Denominator: ')
-        self.topSpin = ttk.Spinbox(self.alphaFrame, width=3, increment=1, from_=1, to=50, state='readonly')
-        self.bottomSpin = ttk.Spinbox(self.alphaFrame, width=3, increment=1, from_=1, to=50, state='readonly')
-
+        self.topSpin = ttk.Spinbox(self.alphaFrame, command=self.__alphaHandler,
+                                   width=3, increment=1, from_=1, to=50)
+        self.bottomSpin = ttk.Spinbox(self.alphaFrame, command=self.__alphaHandler,
+                                      width=3, increment=1, from_=1, to=50)
+        self.topSpin.bind('<Key>', self.__alphaHandler)
+        self.bottomSpin.bind('<Key>', self.__alphaHandler)
+        self.topSpin.set(self.tree.top)
+        self.bottomSpin.set(self.tree.bottom)
+        self.alphaLabel1 = ttk.Label(self.alphaFrame, text='\u03B1: ')
+        self.alphaLabel2 = ttk.Label(self.alphaFrame, text=f'{self.tree.top/self.tree.bottom:.2f}')
+        # .........................................................................................
 
         self.clearBtn = ttk.Button(self.panel, text='Clear', command=self.clear)
         self.rebalanceBtn = ttk.Button(self.panel, text='Rebalance', command=self.rebalance)
         self.randomBtn = ttk.Button(self.panel, text='Add Random', command=self.addRandom)
 
-
+        # ..... Action Frame ......................................................................
         self.addRemoveFR = ttk.Frame(self.panel, borderwidth=1, relief='solid')
         vcmd = (self.root.register(_isFloatable), '%P')
         self.entry1 = ttk.Entry(self.addRemoveFR,
@@ -125,26 +110,54 @@ class Application:
         self.configFrame.pack(fill='x', padx=xpad, pady=4)
         self.autoBalCB.pack(fill='x', padx=xpad, pady=2)
 
-        self.alphaFrame.pack(fill='x', padx=2, pady=2, ipady=2)
-        self.topLabel.grid(row=0, column=0, padx=2, pady=1, sticky='w')
-        self.bottomLabel.grid(row=1, column=0, padx=2, pady=1, sticky='w')
-        self.topSpin.grid(row=0, column=1, padx=2, pady=1, sticky='e')
-        self.bottomSpin.grid(row=1, column=1, padx=2, pady=1, sticky='e')
+        xpad = 2
+        self.alphaFrame.pack(fill='x', padx=xpad, pady=2, ipady=2)
+        self.topLabel.grid(row=0, column=0, padx=xpad, pady=1, sticky='w')
+        self.bottomLabel.grid(row=1, column=0, padx=xpad, pady=1, sticky='w')
+        self.topSpin.grid(row=0, column=1, padx=xpad, pady=1, sticky='e')
+        self.bottomSpin.grid(row=1, column=1, padx=xpad, pady=1, sticky='e')
+        self.alphaLabel1.grid(row=2, column=0, padx=xpad, pady=2, sticky='e')
+        self.alphaLabel2.grid(row=2, column=1, padx=xpad, pady=2)
 
+        xpad = 4
         self.clearBtn.pack(fill='x', padx=xpad, pady=2)
         self.rebalanceBtn.pack(fill='x', padx=xpad, pady=2)
         self.randomBtn.pack(fill='x', padx=xpad, pady=2)
 
         self.addRemoveFR.pack(fill='x', side='top', padx=xpad, pady=8)
         self.addRemoveFR.grid_columnconfigure(1, weight=1)
-        self.infoBtn.grid(row=0, column=0, padx=4, pady=4, sticky='ns')
-        self.entry1.grid(row=0, column=1, columnspan=3, padx=4, pady=4, sticky='we')
-        self.removeBtn.grid(row=1, column=0, columnspan=2, padx=4, pady=4)
-        self.addBtn.grid(row=1, column=2, columnspan=2, padx=4, pady=4)
+        self.infoBtn.grid(row=0, column=0, padx=xpad, pady=4, sticky='ns')
+        self.entry1.grid(row=0, column=1, columnspan=3, padx=xpad, pady=4, sticky='we')
+        self.removeBtn.grid(row=1, column=0, columnspan=2, padx=xpad, pady=4)
+        self.addBtn.grid(row=1, column=2, columnspan=2, padx=xpad, pady=4)
 
-        self.tree = bst.BalancedBSTSet()
         self.canvas.bind('<Configure>', self.update)
         self.root.mainloop()
+
+
+    ## Draws the tree recursivaly.
+     #
+     # @param curr_node The node from where to start to draw. Usually, you wanna start from the root.
+     # @param level Used for the recursion to count each time the function goes down one level.
+     # @note Note that all the visual information of the Node in the canvas is stored as the node property.
+     #       Things like the x,y position, or the canvas objects Id's.
+    def __drawTree(self, currNode, level=1):
+        if currNode is None: return
+
+        # The Y position of the node.
+        currNode.y = level * self.ysep - self.ysep / 2
+
+        # The X position of the node.
+        if currNode.parent is None:
+            currNode.x = self.canvas.winfo_width() / 2
+        elif currNode.data < currNode.parent.data:
+            currNode.x = currNode.parent.x - self.canvas.winfo_width() / (2 ** level)
+        else:
+            currNode.x = currNode.parent.x + self.canvas.winfo_width() / (2 ** level)
+
+        self._drawNode(currNode)
+        self.__drawTree(currNode.left, level + 1)
+        self.__drawTree(currNode.right, level + 1)
 
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
@@ -212,8 +225,9 @@ class Application:
 
     ## Rebalances the whole tree.
     def rebalance(self):
-        self.tree.rebalance()
-        self.update()
+        if not self.tree.isEmpty():
+            self.tree.rebalance()
+            self.update()
 
 
     ## Called when the Enter key is pressed in the Entry.
@@ -230,12 +244,26 @@ class Application:
 
     ## Called when the Auto Balanced checkbox is changed
      # Changes the property "selfBalanced" from the bst object.
-    def _autoBalancedHandler(self):
+    def __autoBalancedHandler(self):
         self.tree.selfBalanced = self.autoBalVar.get()
         if self.autoBalVar.get():
             self.tree.rebalance()
             self.update()
 
+
+    def __alphaHandler(self):
+        top = float(self.topSpin.get())
+        bottom = float(self.bottomSpin.get())
+        alpha = top/bottom
+        self.alphaLabel2['text'] = f'{alpha:.2f}'
+        if 0.5 < alpha < 1:
+            self.alphaLabel1['foreground'] = 'black'
+            self.alphaLabel2['foreground'] = 'black'
+            self.tree.top = top
+            self.tree.bottom = bottom
+        else:
+            self.alphaLabel1['foreground'] = 'red'
+            self.alphaLabel2['foreground'] = 'red'
 
     ## Calculates all the scales and updates the canvas.
     def update(self, *_):
