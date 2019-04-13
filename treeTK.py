@@ -59,6 +59,8 @@ class Application:
 
         # Define widgets =============================================================================
         self.canvas = tk.Canvas(self.root, bg='white')
+        self.canvas.tag_bind('node', '<Button>', self.__nodeClick)
+
         self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
 
         self.configFrame = ttk.LabelFrame(self.panel, text=' Config ')
@@ -100,7 +102,7 @@ class Application:
         self.infoBtn = ttk.Button(self.addRemoveFR, text='?', width='1')
         self.addBtn = ttk.Button(self.addRemoveFR, text='Add', width=8, command=self.addNode)
         self.removeBtn = ttk.Button(self.addRemoveFR, text='Remove', width=8, command=self.removeNode)
-        # ---------------------------------------------------------------------------------------------
+        # ...........................................................................................
 
         # Position widgets ============================================================================
         self.canvas.pack(fill='both', expand=1, side='left', padx=0, pady=4)
@@ -155,13 +157,13 @@ class Application:
         else:
             currNode.x = currNode.parent.x + self.canvas.winfo_width() / (2 ** level)
 
-        self._drawNode(currNode)
+        self.__drawNode(currNode)
         self.__drawTree(currNode.left, level + 1)
         self.__drawTree(currNode.right, level + 1)
 
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
-    def _drawNode(self, node):
+    def __drawNode(self, node):
         fillColor = COLOR1A
         outlineColor = COLOR1B
 
@@ -177,30 +179,38 @@ class Application:
                                               node.x + self.radius, node.y + self.radius,
                                               width=2, fill=fillColor, outline=outlineColor)
         if node.parent:
-            node.line = self.canvas.create_line(node.x, node.y, node.parent.x, node.parent.y,
-                                                width=2, fill=COLOR1B)
+            node.line = self.canvas.create_line(node.x, node.y, node.parent.x, node.parent.y, width=2, fill=COLOR1B)
             self.canvas.tag_lower(node.line)
 
         node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=COLORT,
                                             font=('Calibri', int(50*self.scale), 'bold'))
 
+        def handler(event, obj=node): return self.__nodeClick(event, obj)
+        self.canvas.tag_bind(node.circle, '<Button>', handler)
+        self.canvas.tag_bind(node.text, '<Button>', handler)
 
-    ## Takes the data in the Entry, add it as a node and clears the Entry.
-    def addNode(self):
-        entry = self.entry1.get()
-        if entry and entry != '-':
-            key = float(entry)
+
+    ## Adds the key node into the tree.
+     # If no key is passed, then the number in the entry will be used.
+    def addNode(self, key=None):
+        if key is None:
+            entry = self.entry1.get()
+            if entry and entry != '-':
+                key = float(entry)
+        if key:
             self.tree.add(key)
             self.entry1.delete(0, 'end')
             self.update()
         self.entry1.focus_set()
 
-
-    ## Takes the data in the Entry, remove the corresponding node and clears the Entry.
-    def removeNode(self):
-        entry = self.entry1.get()
-        if entry and entry != '-':
-            key = float(entry)
+    ## Removes the key node from the tree.
+     # If no key is passed, then the number in the entry will be used.
+    def removeNode(self, key=None):
+        if key is None:
+            entry = self.entry1.get()
+            if entry and entry != '-':
+                key = float(entry)
+        if key:
             self.tree.remove(key)
             self.entry1.delete(0, 'end')
             self.update()
@@ -236,10 +246,10 @@ class Application:
         entry = self.entry1.get()
         if entry and entry != '-':
             key = float(entry)
-            if key in self.tree: self.tree.remove(key)
-            else: self.tree.add(key)
-            self.entry1.delete(0, 'end')
-            self.update()
+            if key in self.tree:
+                self.removeNode(key)
+            else:
+                self.addNode(key)
 
 
     ## Called when the Auto Balanced checkbox is changed
@@ -250,7 +260,8 @@ class Application:
             self.tree.rebalance()
             self.update()
 
-
+    ## Called when the Spinbox are changed.
+     # Handles the top and bottom properties in the tree and the color of the alpha label
     def __alphaHandler(self):
         top = float(self.topSpin.get())
         bottom = float(self.bottomSpin.get())
@@ -261,9 +272,17 @@ class Application:
             self.alphaLabel2['foreground'] = 'black'
             self.tree.top = top
             self.tree.bottom = bottom
+            self.update()
         else:
             self.alphaLabel1['foreground'] = 'red'
             self.alphaLabel2['foreground'] = 'red'
+
+
+    ## Handles the clicks on the nodes.
+    def __nodeClick(self, event, node):
+        if event.num == 1: self.removeNode(node.data)
+        elif event.num == 3: print(repr(node))
+
 
     ## Calculates all the scales and updates the canvas.
     def update(self, *_):
