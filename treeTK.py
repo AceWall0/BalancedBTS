@@ -10,6 +10,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import BalancedBSTSet as bst
 import random as r
+from colors import *
 
 
 # ===== Constants =========================================
@@ -19,19 +20,7 @@ HEIGHT = 600
 
 BASERADIUS = 100  # Base radius for the nodes.
 
-# Node colors -----
-COLOR1A = '#5C5'  # Fill
-COLOR1B = '#070'  # Outline
 
-# Unbalanced colors
-COLOR2A = 'pink'  # Fill
-COLOR2B = 'red'   # Outline
-
-# Leaf colors -----
-COLOR3A = '#7F7'  # Fill
-COLOR3B = '#3A3'  # Outline
-
-COLORT = '#020'   # The node's text color
 # -----------------------------------------------------------
 
 
@@ -164,25 +153,26 @@ class Application:
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def __drawNode(self, node):
-        fillColor = COLOR1A
-        outlineColor = COLOR1B
+        fillColor = color['std']['nFill']
+        outlineColor = color['std']['nOutline']
 
         if node.counter == 0:
-            fillColor = COLOR3A
-            outlineColor = COLOR3B
+            fillColor = color['std']['lFill']
+            outlineColor = color['std']['lOutline']
 
         if not self.tree.isBalanced(node):
-            fillColor = COLOR2A
-            outlineColor = COLOR2B
+            fillColor = color['std']['unFill']
+            outlineColor = color['std']['unOutline']
 
         node.circle = self.canvas.create_oval(node.x - self.radius, node.y - self.radius,
                                               node.x + self.radius, node.y + self.radius,
                                               width=2, fill=fillColor, outline=outlineColor)
         if node.parent:
-            node.line = self.canvas.create_line(node.x, node.y, node.parent.x, node.parent.y, width=2, fill=COLOR1B)
+            node.line = self.canvas.create_line(
+                node.x, node.y, node.parent.x, node.parent.y, width=2, fill=color['std']['nOutline'])
             self.canvas.tag_lower(node.line)
 
-        node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=COLORT,
+        node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=color['std']['text'],
                                             font=('Calibri', int(50*self.scale), 'bold'))
 
         def handler(event, obj=node): return self.__nodeClick(event, obj)
