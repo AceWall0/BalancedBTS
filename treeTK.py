@@ -40,8 +40,8 @@ class Application:
      #  @param width The window's width.
      #  @param height The window's heght.
      #
-    def __init__(self, width=WIDTH, height=HEIGHT):
-        self.root = tk.Tk()
+    def __init__(self, window, width=WIDTH, height=HEIGHT):
+        self.root = window
         self.root.geometry(f'{width}x{height}')
         self.root.minsize(400, 400)
         self.tree = bst.BalancedBSTSet()
@@ -169,7 +169,11 @@ class Application:
                                               width=2, fill=fillColor, outline=outlineColor)
         if node.parent:
             node.line = self.canvas.create_line(
-                node.x, node.y, node.parent.x, node.parent.y, width=2, fill=color['std']['nOutline'])
+                node.x, node.y,
+                node.parent.x,
+                node.parent.y,
+                width=2, fill=color['std']['nOutline']
+            )
             self.canvas.tag_lower(node.line)
 
         node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=color['std']['text'],
@@ -298,4 +302,6 @@ def _isFloatable(inp):
 
 # ===== Main Application ======================================================
 if __name__ == '__main__':
-    Application()
+    root = tk.Tk()
+    Application(root)
+    root.mainloop()
