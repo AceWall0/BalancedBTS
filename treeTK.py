@@ -183,12 +183,21 @@ class Application:
         self.__drawTree(currNode.right, level + 1)
 
 
+    def select(self, node):
+        self.update()
+        self.selected = node
+        self.canvas.itemconfigure(
+            node.circle,
+            outline=themes[self._theme]['selectedOutline']
+        )
+        self.canvas.tag_raise(node.circle)
+        self.canvas.tag_raise(node.text)
+
+
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def __drawNode(self, node):
         fillColor = themes[self._theme]['nodeFill']
         outlineColor = themes[self._theme]['nodeOutline']
-        radius = self.radius
-        fontSize = int(50*self.scale)
 
         if node.counter == 0:
             fillColor = themes[self._theme]['leafFill']
@@ -198,19 +207,10 @@ class Application:
             fillColor = themes[self._theme]['uNodeFill']
             outlineColor = themes[self._theme]['uNodeOutline']
 
-        outlineWidth = 2
-        if node is self.selected:
-            # fillColor = themes[self._theme]['selectedFill']
-            outlineColor = themes[self._theme]['selectedOutline']
-            radius *= 1.2
-            fontSize = int(fontSize * 1.2)
-            outlineWidth = 3
-
-
         node.circle = self.canvas.create_oval(
-            node.x - radius, node.y - radius,
-            node.x + radius, node.y + radius,
-            width=outlineWidth, fill=fillColor, outline=outlineColor
+            node.x - self.radius, node.y - self.radius,
+            node.x + self.radius, node.y + self.radius,
+            width=2, fill=fillColor, outline=outlineColor
         )
 
         if node is self.selected:
@@ -229,7 +229,7 @@ class Application:
             node.x, node.y,
             text=f'{node.data:g}',
             fill=themes[self._theme]['text'],
-            font=('Calibri', fontSize, 'bold')
+            font=('Calibri', int(50*self.scale), 'bold')
         )
 
         def handler(event, obj=node): return self.__nodeClick(event, obj)
@@ -328,9 +328,7 @@ class Application:
 
     ## Handles the clicks on the nodes.
     def __nodeClick(self, event, node):
-        if event.num == 1:
-            self.selected = node
-            self.update()
+        if event.num == 1: self.select(node)
         elif event.num == 3: self.removeNode(node.data)
 
 
