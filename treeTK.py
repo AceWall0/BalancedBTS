@@ -40,6 +40,7 @@ class Application:
         self.root.geometry(f'{width}x{height}')
         self.root.minsize(400, 400)
         self.tree = bst.BalancedBSTSet()
+        self.selected = None
 
         # ================== The window construction ======================
         self.root.grid_rowconfigure(0, weight=1)
@@ -186,18 +187,35 @@ class Application:
     def __drawNode(self, node):
         fillColor = themes[self._theme]['nodeFill']
         outlineColor = themes[self._theme]['nodeOutline']
+        radius = self.radius
+        fontSize = int(50*self.scale)
 
         if node.counter == 0:
             fillColor = themes[self._theme]['leafFill']
             outlineColor = themes[self._theme]['leafOutline']
 
-        if not self.tree.isBalanced(node):
+        elif not self.tree.isBalanced(node):
             fillColor = themes[self._theme]['uNodeFill']
             outlineColor = themes[self._theme]['uNodeOutline']
 
-        node.circle = self.canvas.create_oval(node.x - self.radius, node.y - self.radius,
-                                              node.x + self.radius, node.y + self.radius,
-                                              width=2, fill=fillColor, outline=outlineColor)
+        outlineWidth = 2
+        if node is self.selected:
+            # fillColor = themes[self._theme]['selectedFill']
+            outlineColor = themes[self._theme]['selectedOutline']
+            radius *= 1.2
+            fontSize = int(fontSize * 1.2)
+            outlineWidth = 3
+
+
+        node.circle = self.canvas.create_oval(
+            node.x - radius, node.y - radius,
+            node.x + radius, node.y + radius,
+            width=outlineWidth, fill=fillColor, outline=outlineColor
+        )
+
+        if node is self.selected:
+            self.canvas.tag_raise(node.circle)
+
         if node.parent:
             node.line = self.canvas.create_line(
                 node.x, node.y,
@@ -207,8 +225,12 @@ class Application:
             )
             self.canvas.tag_lower(node.line)
 
-        node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=themes[self._theme]['text'],
-                                            font=('Calibri', int(50*self.scale), 'bold'))
+        node.text = self.canvas.create_text(
+            node.x, node.y,
+            text=f'{node.data:g}',
+            fill=themes[self._theme]['text'],
+            font=('Calibri', fontSize, 'bold')
+        )
 
         def handler(event, obj=node): return self.__nodeClick(event, obj)
         self.canvas.tag_bind(node.circle, '<Button>', handler)
@@ -284,6 +306,7 @@ class Application:
             self.tree.rebalance()
             self.update()
 
+
     ## Called when the Spinbox are changed.
      # Handles the top and bottom properties in the tree and the color of the alpha label
     def __alphaHandler(self):
@@ -305,8 +328,10 @@ class Application:
 
     ## Handles the clicks on the nodes.
     def __nodeClick(self, event, node):
-        if event.num == 1: self.removeNode(node.data)
-        elif event.num == 3: print(repr(node))
+        if event.num == 1:
+            self.selected = node
+            self.update()
+        elif event.num == 3: self.removeNode(node.data)
 
 
     ## Calculates all the scales and updates the canvas.

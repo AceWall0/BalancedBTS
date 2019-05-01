@@ -17,6 +17,8 @@ themes = {
         'uNodeOutline': '#B88',
         'leafFill': '#6AA',
         'leafOutline': '#8BB',
+        'selectedFill': '#AAA',
+        'selectedOutline': '#FFF',
         'text': '#DDDDDD'
     }
 }
