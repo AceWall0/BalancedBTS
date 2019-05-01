@@ -41,6 +41,8 @@ class Application:
         self.root.minsize(400, 400)
         self.tree = bst.BalancedBSTSet()
         self.selected = None
+        self.__recently = False
+
 
         # ================== The window construction ======================
         self.root.grid_rowconfigure(0, weight=1)
@@ -48,7 +50,7 @@ class Application:
 
         # The canvas widget -----------------------------------------------
         self.canvas = tk.Canvas(self.root, bg=themes[self._theme]['bg'])
-        self.canvas.tag_bind('node', '<Button>', self.__nodeClick)
+        self.canvas.bind('<Button-1>', self.__clickHandler)
         self.canvas.grid(row=0, column=0, sticky='nsew', padx=0, pady=4)
 
         # The right control panel -------------------------------------------------
@@ -125,7 +127,7 @@ class Application:
         self.entry1.bind('<KeyPress-Return>', self._add_remove)
         self.entry1.grid(row=0, column=1, padx=xpad, pady=4, sticky='we')
 
-        self.selectBtn = ttk.Button(self.addRemoveFR, text='Select', width=8)
+        self.selectBtn = ttk.Button(self.addRemoveFR, text='Select', width=8, command=self.selectNode)
         self.selectBtn.grid(row=0, column=0, padx=xpad, pady=4, sticky='ns')
 
         self.removeBtn = ttk.Button(self.addRemoveFR, text='Remove', width=8, command=self.removeNode)
@@ -140,18 +142,18 @@ class Application:
 
         self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size: ', width=8, anchor='e')
         self.sizeLabel.grid(row=0, column=0, padx=xpad, sticky='e')
-        self.sizeValueLabel = ttk.Label(self.treeInfoFrame, text='', width=8)
-        self.sizeValueLabel.grid(row=0, column=1, padx=xpad)
+        self.sizeValueLabel = ttk.Label(self.treeInfoFrame, text='')
+        self.sizeValueLabel.grid(row=0, column=1, padx=xpad, sticky='w')
 
         self.heightLabel = ttk.Label(self.treeInfoFrame, text='Height: ', width=8, anchor='e')
         self.heightLabel.grid(row=1, column=0, padx=xpad, sticky='e')
-        self.heightValueLabel = ttk.Label(self.treeInfoFrame, text='', width=8)
-        self.heightValueLabel.grid(row=1, column=1, padx=xpad)
+        self.heightValueLabel = ttk.Label(self.treeInfoFrame, text='')
+        self.heightValueLabel.grid(row=1, column=1, padx=xpad, sticky='w')
 
         self.alphLabel = ttk.Label(self.treeInfoFrame, text='Alpha: ', width=8, anchor='e')
         self.alphLabel.grid(row=3, column=0, padx=xpad, sticky='e')
-        self.alphValueLabel = ttk.Label(self.treeInfoFrame, text='0.76', width=8)
-        self.alphValueLabel.grid(row=3, column=1, padx=xpad)
+        self.alphValueLabel = ttk.Label(self.treeInfoFrame, text='0.76')
+        self.alphValueLabel.grid(row=3, column=1, padx=xpad, sticky='w')
 
         # +=== Node Info -------------------------------------------------------------------
         self.treeNodeInfoFrame = ttk.LabelFrame(self.panel, text='Node info')
@@ -159,9 +161,18 @@ class Application:
 
         self.selectedLabel = ttk.Label(self.treeNodeInfoFrame, text='Node: ', width=8, anchor='e')
         self.selectedLabel.grid(row=0, column=0, padx=xpad, sticky='e')
-        self.selectedValue = ttk.Label(self.treeNodeInfoFrame, text='3', width=8)
-        self.selectedValue.grid(row=0, column=1, padx=xpad)
+        self.selectedValue = ttk.Label(self.treeNodeInfoFrame, text='3')
+        self.selectedValue.grid(row=0, column=1, padx=xpad, sticky='w')
 
+        self.leftChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Left children: ', anchor='e')
+        self.leftChildrenLabel.grid(row=1, column=0, padx=xpad, sticky='e')
+        self.leftChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='')
+        self.leftChildrenValue.grid(row=1, column=1, padx=xpad, sticky='w')
+
+        self.rightChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Right children: ', anchor='e')
+        self.rightChildrenLabel.grid(row=2, column=0, padx=xpad, sticky='e')
+        self.rightChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='')
+        self.rightChildrenValue.grid(row=2, column=1, padx=xpad, sticky='w')
 
         self.canvas.bind('<Configure>', self.update)
 
@@ -191,17 +202,6 @@ class Application:
         self.__drawTree(currNode.right, level + 1)
 
 
-    def select(self, node):
-        self.selected = node
-        self.update()
-        self.canvas.itemconfigure(
-            node.circle,
-            outline=themes[self._theme]['selectedOutline']
-        )
-        self.canvas.tag_raise(node.circle)
-        self.canvas.tag_raise(node.text)
-
-
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def __drawNode(self, node):
         fillColor = themes[self._theme]['nodeFill']
@@ -226,7 +226,7 @@ class Application:
         node.circle = self.canvas.create_oval(
             node.x - radius, node.y - radius,
             node.x + radius, node.y + radius,
-            width=outline, fill=fillColor, outline=outlineColor
+            width=outline, fill=fillColor, outline=outlineColor, tags='node'
         )
 
         if node is self.selected:
@@ -245,12 +245,47 @@ class Application:
             node.x, node.y,
             text=f'{node.data:g}',
             fill=themes[self._theme]['text'],
-            font=('Calibri', fontSize, 'bold')
+            font=('Calibri', fontSize, 'bold'),
+            tags='node'
         )
 
-        def handler(event, obj=node): return self.__nodeClick(event, obj)
+
+        def handler(event, obj=node): return self.__clickHandler(event, obj)
         self.canvas.tag_bind(node.circle, '<Button>', handler)
         self.canvas.tag_bind(node.text, '<Button>', handler)
+
+
+    ## Handles the clicks in the canvas.
+    def __clickHandler(self, event, node=None):
+        # As the handler fires twice when clicked on the element in the canvas (one for the canvas, one the element),
+        # I needed to create this variable __recently to stop de function to run the second time in one click.
+
+        if node:
+            if event.num == 1: self.selectNode(node)
+            elif event.num == 3: self.removeNode(node.data)
+            self.__recently = True
+            return
+
+        if not self.__recently:
+            self.selected = None
+            self.update()
+        self.__recently = False
+
+
+    ## Selects a node.
+     # If no node is passed, then the number in the entry will be used.
+    def selectNode(self, node=None):
+        if node is None:
+            node = self.tree.findEntry(float(self.entry1.get()))
+
+        self.selected = node
+        self.update()
+        self.canvas.itemconfigure(
+            node.circle,
+            outline=themes[self._theme]['selectedOutline']
+        )
+        self.canvas.tag_raise(node.circle)
+        self.canvas.tag_raise(node.text)
 
 
     ## Adds the key node into the tree.
@@ -277,7 +312,6 @@ class Application:
             self.tree.remove(key)
             self.entry1.delete(0, 'end')
             self.update()
-        self.entry1.focus_set()
 
 
     ## Add a random number into the tree.
@@ -342,12 +376,6 @@ class Application:
             self.alphaLabel2['foreground'] = 'red'
 
 
-    ## Handles the clicks on the nodes.
-    def __nodeClick(self, event, node):
-        if event.num == 1: self.select(node)
-        elif event.num == 3: self.removeNode(node.data)
-
-
     ## Calculates all the scales and updates the canvas.
     def update(self, *_):
         self.canvas.delete('all')
@@ -360,6 +388,9 @@ class Application:
 
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
         self.heightValueLabel['text'] = f'{self.tree.height()}'
+        if self.selected:
+            self.leftChildrenValue['text'] = f'{self.selected.left.size if self.selected.left else 0}'
+            self.rightChildrenValue['text'] = f'{self.selected.right.size if self.selected.right else 0}'
 
         self.canvas.update()
 

@@ -10,7 +10,7 @@ themes = {
         'text': '#020'
     },
     'dark': {
-        'bg': '#151010',
+        'bg': '#202225',
         'nodeFill': '#66A',
         'nodeOutline': '#88B',
         'uNodeFill': '#A66',
