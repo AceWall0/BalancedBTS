@@ -1,19 +1,22 @@
-color = {
+themes = {
     'std': {
-        'bg': '#FFF',        # Background
-
-        # Node colors -----
-        'nFill': '#5C5',     # Fill
-        'nOutline': '#070',  # Outline
-
-        # Unbalanced colors
-        'unFill': 'pink',    # Fill
-        'unOutline': 'red',  # Outline
-
-        # Leaf colors -----
-        'lFill': '#7F7',     # Fill
-        'lOutline': '#3A3',  # Outline
-
-        'text': '#020'       # The node's text color
+        'bg': '#FFF',
+        'nodeFill': '#5C5',
+        'nodeOutline': '#070',
+        'uNodeFill': 'pink',
+        'uNodeOutline': 'red',
+        'leafFill': '#7F7',
+        'leafOutline': '#3A3',
+        'text': '#020'
+    },
+    'dark': {
+        'bg': '#151010',
+        'nodeFill': '#66A',
+        'nodeOutline': '#88B',
+        'uNodeFill': '#A66',
+        'uNodeOutline': '#B88',
+        'leafFill': '#6AA',
+        'leafOutline': '#8BB',
+        'text': '#DDDDDD'
     }
 }

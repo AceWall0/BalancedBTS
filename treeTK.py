@@ -13,17 +13,6 @@ import random as r
 from colors import *
 
 
-# ===== Constants =========================================
-# Initial size for the window.
-WIDTH = 800
-HEIGHT = 600
-
-BASERADIUS = 100  # Base radius for the nodes.
-
-
-# -----------------------------------------------------------
-
-
 # ===== Classes =====================================================
 ##
  # Graphical user interface for the BalancedBSTSet implementation.
@@ -37,17 +26,21 @@ class Application:
     ##
      #  Constructs the application
      #
+     #  @param root The window where the application is.
      #  @param width The window's width.
      #  @param height The window's heght.
      #
-    def __init__(self, window, width=WIDTH, height=HEIGHT):
+    def __init__(self, window, width=800, height=600):
+        self.__BASERADIUS = 100
+        self._theme = 'dark'
+
         self.root = window
         self.root.geometry(f'{width}x{height}')
         self.root.minsize(400, 400)
         self.tree = bst.BalancedBSTSet()
 
         # Define widgets =============================================================================
-        self.canvas = tk.Canvas(self.root, bg='white')
+        self.canvas = tk.Canvas(self.root, bg=themes[self._theme]['bg'])
         self.canvas.tag_bind('node', '<Button>', self.__nodeClick)
 
         self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
@@ -153,16 +146,16 @@ class Application:
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def __drawNode(self, node):
-        fillColor = color['std']['nFill']
-        outlineColor = color['std']['nOutline']
+        fillColor = themes[self._theme]['nodeFill']
+        outlineColor = themes[self._theme]['nodeOutline']
 
         if node.counter == 0:
-            fillColor = color['std']['lFill']
-            outlineColor = color['std']['lOutline']
+            fillColor = themes[self._theme]['leafFill']
+            outlineColor = themes[self._theme]['leafOutline']
 
         if not self.tree.isBalanced(node):
-            fillColor = color['std']['unFill']
-            outlineColor = color['std']['unOutline']
+            fillColor = themes[self._theme]['uNodeFill']
+            outlineColor = themes[self._theme]['uNodeOutline']
 
         node.circle = self.canvas.create_oval(node.x - self.radius, node.y - self.radius,
                                               node.x + self.radius, node.y + self.radius,
@@ -172,11 +165,11 @@ class Application:
                 node.x, node.y,
                 node.parent.x,
                 node.parent.y,
-                width=2, fill=color['std']['nOutline']
+                width=2, fill=themes[self._theme]['nodeOutline']
             )
             self.canvas.tag_lower(node.line)
 
-        node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=color['std']['text'],
+        node.text = self.canvas.create_text(node.x, node.y, text=f'{node.data:g}', fill=themes[self._theme]['text'],
                                             font=('Calibri', int(50*self.scale), 'bold'))
 
         def handler(event, obj=node): return self.__nodeClick(event, obj)
@@ -284,7 +277,7 @@ class Application:
         height = self.tree.height()
         if height >= 0:
             self.scale = 1 / (height + 1)
-            self.radius = BASERADIUS * self.scale
+            self.radius = self.__BASERADIUS * self.scale
             self.ysep = self.canvas.winfo_height() * self.scale
             self.__drawTree(self.tree.root())
         self.canvas.update()
