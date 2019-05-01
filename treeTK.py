@@ -134,28 +134,36 @@ class Application:
         self.addBtn = ttk.Button(self.addRemoveFR, text='Add', width=8, command=self.addNode)
         self.addBtn.grid(row=1, column=1, padx=xpad, pady=4, sticky='ns')
 
-        # +=== Tree Info LabelFrame -----------------------------------------------------------------
+        # +=== Tree Info -----------------------------------------------------------------
         self.treeInfoFrame = ttk.LabelFrame(self.panel, text='Tree info')
-        self.treeInfoFrame.pack(fill='x', padx=xpad, pady=4)
+        self.treeInfoFrame.pack(fill='x', padx=xpad)
 
         self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size: ', width=8, anchor='e')
         self.sizeLabel.grid(row=0, column=0, padx=xpad, sticky='e')
         self.sizeValueLabel = ttk.Label(self.treeInfoFrame, text='', width=8)
-        self.sizeValueLabel.grid(row=0, column=1, padx=xpad, sticky='w')
+        self.sizeValueLabel.grid(row=0, column=1, padx=xpad)
 
         self.heightLabel = ttk.Label(self.treeInfoFrame, text='Height: ', width=8, anchor='e')
         self.heightLabel.grid(row=1, column=0, padx=xpad, sticky='e')
         self.heightValueLabel = ttk.Label(self.treeInfoFrame, text='', width=8)
-        self.heightValueLabel.grid(row=1, column=1, padx=xpad, sticky='w')
+        self.heightValueLabel.grid(row=1, column=1, padx=xpad)
 
         self.alphLabel = ttk.Label(self.treeInfoFrame, text='Alpha: ', width=8, anchor='e')
         self.alphLabel.grid(row=3, column=0, padx=xpad, sticky='e')
         self.alphValueLabel = ttk.Label(self.treeInfoFrame, text='0.76', width=8)
-        self.alphValueLabel.grid(row=3, column=1, padx=xpad, sticky='w')
+        self.alphValueLabel.grid(row=3, column=1, padx=xpad)
 
-        # -------------------------------------------------------------------------------------------
+        # +=== Node Info -------------------------------------------------------------------
+        self.treeNodeInfoFrame = ttk.LabelFrame(self.panel, text='Node info')
+        self.treeNodeInfoFrame.pack(fill='x', padx=xpad, pady=4)
+
+        self.selectedLabel = ttk.Label(self.treeNodeInfoFrame, text='Node: ', width=8, anchor='e')
+        self.selectedLabel.grid(row=0, column=0, padx=xpad, sticky='e')
+        self.selectedValue = ttk.Label(self.treeNodeInfoFrame, text='3', width=8)
+        self.selectedValue.grid(row=0, column=1, padx=xpad)
+
+
         self.canvas.bind('<Configure>', self.update)
-        self.root.mainloop()
 
 
     ## Draws the tree recursivaly.
@@ -184,8 +192,8 @@ class Application:
 
 
     def select(self, node):
-        self.update()
         self.selected = node
+        self.update()
         self.canvas.itemconfigure(
             node.circle,
             outline=themes[self._theme]['selectedOutline']
@@ -207,10 +215,18 @@ class Application:
             fillColor = themes[self._theme]['uNodeFill']
             outlineColor = themes[self._theme]['uNodeOutline']
 
+        radius = self.radius
+        outline = 2
+        fontSize = int(50*self.scale)
+        if node is self.selected:
+            radius *= 1.2
+            outline = 3
+            fontSize = int(fontSize * 1.2)
+
         node.circle = self.canvas.create_oval(
-            node.x - self.radius, node.y - self.radius,
-            node.x + self.radius, node.y + self.radius,
-            width=2, fill=fillColor, outline=outlineColor
+            node.x - radius, node.y - radius,
+            node.x + radius, node.y + radius,
+            width=outline, fill=fillColor, outline=outlineColor
         )
 
         if node is self.selected:
@@ -229,7 +245,7 @@ class Application:
             node.x, node.y,
             text=f'{node.data:g}',
             fill=themes[self._theme]['text'],
-            font=('Calibri', int(50*self.scale), 'bold')
+            font=('Calibri', fontSize, 'bold')
         )
 
         def handler(event, obj=node): return self.__nodeClick(event, obj)
