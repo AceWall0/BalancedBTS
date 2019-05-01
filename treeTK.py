@@ -30,24 +30,30 @@ class Application:
      #  @param width The window's width.
      #  @param height The window's heght.
      #
-    def __init__(self, window, width=800, height=600):
+    def __init__(self, window: tk.Tk, width=800, height=600):
+        # Constants and variables
         self.__BASERADIUS = 100
         self._theme = 'dark'
 
+        # Logic things
         self.root = window
         self.root.geometry(f'{width}x{height}')
         self.root.minsize(400, 400)
         self.tree = bst.BalancedBSTSet()
 
+        # ================== The window construction ======================
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+
         # The canvas widget -----------------------------------------------
         self.canvas = tk.Canvas(self.root, bg=themes[self._theme]['bg'])
         self.canvas.tag_bind('node', '<Button>', self.__nodeClick)
-        self.canvas.pack(fill='both', expand=1, side='left', padx=0, pady=4)
+        self.canvas.grid(row=0, column=0, sticky='nsew', padx=0, pady=4)
 
         # The right control panel -------------------------------------------------
         xpad = 4
         self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
-        self.panel.pack(fill='y', side='right', padx=xpad, pady=6)
+        self.panel.grid(row=0, column=1, sticky='ns', padx=xpad, pady=6)
 
         # +=== The config panel ---------------------------------------------------
         self.configFrame = ttk.LabelFrame(self.panel, text=' Config ')
@@ -104,7 +110,7 @@ class Application:
         # +=== Node Action frame -----------------------------------------------------------------
         self.addRemoveFR = ttk.Frame(self.panel, borderwidth=1, relief='solid')
         self.addRemoveFR.pack(fill='x', side='top', padx=xpad, pady=8)
-        self.addRemoveFR.grid_columnconfigure(1, weight=1)
+        # self.addRemoveFR.grid_columnconfigure(1, weight=1)
 
 
         vcmd = (self.root.register(_isFloatable), '%P')
@@ -127,9 +133,12 @@ class Application:
         self.addBtn = ttk.Button(self.addRemoveFR, text='Add', width=8, command=self.addNode)
         self.addBtn.grid(row=1, column=1, padx=xpad, pady=4, sticky='ns')
 
-        # TODO Tree Info LabelFrame -----------------------------------------------------------------
-        #
+        # +=== Tree Info LabelFrame -----------------------------------------------------------------
+        self.treeInfoFrame = ttk.LabelFrame(self.panel, text='Tree info')
+        self.treeInfoFrame.pack()
 
+        self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size: ')
+        # self.sizeLabel.grid
 
         # -------------------------------------------------------------------------------------------
 
