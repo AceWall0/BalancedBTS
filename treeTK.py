@@ -135,14 +135,24 @@ class Application:
 
         # +=== Tree Info LabelFrame -----------------------------------------------------------------
         self.treeInfoFrame = ttk.LabelFrame(self.panel, text='Tree info')
-        self.treeInfoFrame.pack()
+        self.treeInfoFrame.pack(fill='x', padx=xpad, pady=4)
 
-        self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size: ')
-        # self.sizeLabel.grid
+        self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size: ', width=8, anchor='e')
+        self.sizeLabel.grid(row=0, column=0, padx=xpad, sticky='e')
+        self.sizeValueLabel = ttk.Label(self.treeInfoFrame, text='', width=8)
+        self.sizeValueLabel.grid(row=0, column=1, padx=xpad, sticky='w')
+
+        self.heightLabel = ttk.Label(self.treeInfoFrame, text='Height: ', width=8, anchor='e')
+        self.heightLabel.grid(row=1, column=0, padx=xpad, sticky='e')
+        self.heightValueLabel = ttk.Label(self.treeInfoFrame, text='', width=8)
+        self.heightValueLabel.grid(row=1, column=1, padx=xpad, sticky='w')
+
+        self.alphLabel = ttk.Label(self.treeInfoFrame, text='Alpha: ', width=8, anchor='e')
+        self.alphLabel.grid(row=3, column=0, padx=xpad, sticky='e')
+        self.alphValueLabel = ttk.Label(self.treeInfoFrame, text='0.76', width=8)
+        self.alphValueLabel.grid(row=3, column=1, padx=xpad, sticky='w')
 
         # -------------------------------------------------------------------------------------------
-
-
         self.canvas.bind('<Configure>', self.update)
         self.root.mainloop()
 
@@ -242,10 +252,9 @@ class Application:
 
     ## Clears the tree.
     def clear(self):
-        self.canvas.delete('all')
         for node in self.tree:
             self.tree.remove(node)
-        self.canvas.update()
+        self.update()
 
 
     ## Rebalances the whole tree.
@@ -285,6 +294,7 @@ class Application:
         if 0.5 < alpha < 1:
             self.alphaLabel1['foreground'] = 'black'
             self.alphaLabel2['foreground'] = 'black'
+            self.alphValueLabel['text'] = f'{alpha:.2f}'
             self.tree.top = top
             self.tree.bottom = bottom
             self.update()
@@ -308,6 +318,10 @@ class Application:
             self.radius = self.__BASERADIUS * self.scale
             self.ysep = self.canvas.winfo_height() * self.scale
             self.__drawTree(self.tree.root())
+
+        self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
+        self.heightValueLabel['text'] = f'{self.tree.height()}'
+
         self.canvas.update()
 
 
