@@ -32,12 +32,12 @@ class Application:
      #
     def __init__(self, window: tk.Tk, width=800, height=600):
         # Constants and variables
-        self.__BASERADIUS = 100
+        self.__BASERADIUS = 150
         self._theme = tk.StringVar()
         self._theme.set('dark')
 
         # Logic things
-        self.tree = bst.BalancedBSTSet()
+        self.tree = bst.BalancedBSTSet(True)
         self.selected = None
         self.__recently = False
 
@@ -79,6 +79,7 @@ class Application:
         self.configFrame.pack(fill='x', padx=xpad, pady=4)
 
         self.autoBalVar = tk.BooleanVar()
+        self.autoBalVar.set(True)
         self.autoBalCB = ttk.Checkbutton(
             self.configFrame, text='Auto balanced', variable=self.autoBalVar, command=self.__autoBalancedHandler)
         self.autoBalCB.pack(fill='x', padx=xpad, pady=2)
@@ -213,6 +214,7 @@ class Application:
         if currNode is None: return
 
         # The Y position of the node.
+        currNode.r = self.radius
         currNode.y = level * self.ysep - self.ysep / 2
 
         # The X position of the node.
@@ -241,17 +243,17 @@ class Application:
             fillColor = themes[self._theme.get()]['uNodeFill']
             outlineColor = themes[self._theme.get()]['uNodeOutline']
 
-        radius = self.radius
+
         outline = 2
-        fontSize = int(50*self.scale)
+        fontSize = int(node.r)
         if node is self.selected:
-            radius *= 1.2
+            node.r *= 1.2
             outline = 3
             fontSize = int(fontSize * 1.2)
 
         node.circle = self.canvas.create_oval(
-            node.x - radius, node.y - radius,
-            node.x + radius, node.y + radius,
+            node.x - node.r, node.y - node.r,
+            node.x + node.r, node.y + node.r,
             width=outline, fill=fillColor, outline=outlineColor, tags='node'
         )
 
@@ -353,14 +355,17 @@ class Application:
             self.selected = None
             self.update()
 
+
     ## Add a random number into the tree.
      #
      # If the number choosed is already in the tree, it will try to add a random decimal to this number choosed and fit
      # it in the tree, until it succeed.
     def addRandom(self):
-        key = r.randint(-99, 99)
+        range_ = 5
+        key = r.randint(-range_, range_)
         while self.tree.add(key):
-            key += r.randint(-99, 99)/100
+            range_ *= 2
+            key = r.randint(-range_, range_)
         self.update()
 
 
