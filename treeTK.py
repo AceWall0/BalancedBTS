@@ -33,23 +33,39 @@ class Application:
     def __init__(self, window: tk.Tk, width=800, height=600):
         # Constants and variables
         self.__BASERADIUS = 100
-        self._theme = 'dark'
+        self._theme = tk.StringVar()
+        self._theme.set('dark')
 
         # Logic things
-        self.root = window
-        self.root.geometry(f'{width}x{height}')
-        self.root.minsize(400, 400)
         self.tree = bst.BalancedBSTSet()
         self.selected = None
         self.__recently = False
 
-
         # ================== The window construction ======================
+        self.root = window
+        self.root.geometry(f'{width}x{height}')
+        self.root.minsize(400, 400)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
 
+        # Menu ------------------------------------------------------------
+        self.menubar = tk.Menu(self.root)
+
+        self.fileMenu = tk.Menu(self.menubar, tearoff=0)
+        self.fileMenu.add_command(label='New')
+        self.fileMenu.add_command(label='Open...')
+        self.fileMenu.add_command(label='Save As...')
+        self.menubar.add_cascade(label='File', menu=self.fileMenu)
+
+        self.themeMenu = tk.Menu(self.menubar, tearoff=0)
+        self.themeMenu.add_radiobutton(label='Light', variable=self._theme, value='light', command=self.update)
+        self.themeMenu.add_radiobutton(label='Dark', variable=self._theme, value='dark', command=self.update)
+        self.menubar.add_cascade(label='Theme', menu=self.themeMenu)
+
+        self.root.config(menu=self.menubar)
+
         # The canvas widget -----------------------------------------------
-        self.canvas = tk.Canvas(self.root, bg=themes[self._theme]['bg'])
+        self.canvas = tk.Canvas(self.root, bg=themes[self._theme.get()]['bg'])
         self.canvas.bind('<Button-1>', self.__clickHandler)
         self.canvas.grid(row=0, column=0, sticky='nsew', padx=0, pady=4)
 
@@ -214,16 +230,16 @@ class Application:
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def __drawNode(self, node):
-        fillColor = themes[self._theme]['nodeFill']
-        outlineColor = themes[self._theme]['nodeOutline']
+        fillColor = themes[self._theme.get()]['nodeFill']
+        outlineColor = themes[self._theme.get()]['nodeOutline']
 
         if node.counter == 0:
-            fillColor = themes[self._theme]['leafFill']
-            outlineColor = themes[self._theme]['leafOutline']
+            fillColor = themes[self._theme.get()]['leafFill']
+            outlineColor = themes[self._theme.get()]['leafOutline']
 
         elif not self.tree.isBalanced(node):
-            fillColor = themes[self._theme]['uNodeFill']
-            outlineColor = themes[self._theme]['uNodeOutline']
+            fillColor = themes[self._theme.get()]['uNodeFill']
+            outlineColor = themes[self._theme.get()]['uNodeOutline']
 
         radius = self.radius
         outline = 2
@@ -247,14 +263,14 @@ class Application:
                 node.x, node.y,
                 node.parent.x,
                 node.parent.y,
-                width=2, fill=themes[self._theme]['nodeOutline']
+                width=2, fill=themes[self._theme.get()]['nodeOutline']
             )
             self.canvas.tag_lower(node.line)
 
         node.text = self.canvas.create_text(
             node.x, node.y,
             text=f'{node.data:g}',
-            fill=themes[self._theme]['text'],
+            fill=themes[self._theme.get()]['text'],
             font=('Calibri', fontSize, 'bold'),
             tags='node'
         )
@@ -305,7 +321,7 @@ class Application:
 
         self.canvas.itemconfigure(
             node.circle,
-            outline=themes[self._theme]['selectedOutline']
+            outline=themes[self._theme.get()]['selectedOutline']
         )
         self.canvas.tag_raise(node.circle)
         self.canvas.tag_raise(node.text)
@@ -405,6 +421,8 @@ class Application:
     ## Calculates all the scales and updates the canvas.
     def update(self, *_):
         self.canvas.delete('all')
+        self.canvas['bg'] = themes[self._theme.get()]['bg']
+
         height = self.tree.height()
         if height >= 0:
             self.scale = 1 / (height + 1)

@@ -1,12 +1,13 @@
 themes = {
-    'std': {
+    'light': {
         'bg': '#FFF',
         'nodeFill': '#5C5',
         'nodeOutline': '#070',
         'uNodeFill': 'pink',
-        'uNodeOutline': 'red',
+        'uNodeOutline': '#F77',
         'leafFill': '#7F7',
         'leafOutline': '#3A3',
+        'selectedOutline': '#333',
         'text': '#020'
     },
     'dark': {
@@ -15,9 +16,8 @@ themes = {
         'nodeOutline': '#88B',
         'uNodeFill': '#A66',
         'uNodeOutline': '#B88',
-        'leafFill': '#6AA',
+        'leafFill': '#599',
         'leafOutline': '#8BB',
-        'selectedFill': '#AAA',
         'selectedOutline': '#FFF',
         'text': '#DDDDDD'
     }
