@@ -129,50 +129,55 @@ class Application:
 
         self.selectBtn = ttk.Button(self.addRemoveFR, text='Select', width=8, command=self.selectNode)
         self.selectBtn.grid(row=0, column=0, padx=xpad, pady=4, sticky='ns')
+        self.selectBtn.bind('<ButtonRelease>', self.__returnFocus)
 
         self.removeBtn = ttk.Button(self.addRemoveFR, text='Remove', width=8, command=self.removeNode)
         self.removeBtn.grid(row=1, column=0, padx=xpad, pady=4, sticky='ns')
+        self.removeBtn.bind('<ButtonRelease>', self.__returnFocus)
 
         self.addBtn = ttk.Button(self.addRemoveFR, text='Add', width=8, command=self.addNode)
         self.addBtn.grid(row=1, column=1, padx=xpad, pady=4, sticky='ns')
+        self.addBtn.bind('<ButtonRelease>', self.__returnFocus)
 
         # +=== Tree Info -----------------------------------------------------------------
         self.treeInfoFrame = ttk.LabelFrame(self.panel, text='Tree info')
         self.treeInfoFrame.pack(fill='x', padx=xpad)
+        self.treeInfoFrame.grid_columnconfigure(0, weight=1)
 
-        self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size: ', width=8, anchor='e')
+        self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size:', anchor='e')
         self.sizeLabel.grid(row=0, column=0, padx=xpad, sticky='e')
-        self.sizeValueLabel = ttk.Label(self.treeInfoFrame, text='')
-        self.sizeValueLabel.grid(row=0, column=1, padx=xpad, sticky='w')
+        self.sizeValueLabel = ttk.Label(self.treeInfoFrame, text='', width=5)
+        self.sizeValueLabel.grid(row=0, column=1, padx=xpad, sticky='e')
 
-        self.heightLabel = ttk.Label(self.treeInfoFrame, text='Height: ', width=8, anchor='e')
+        self.heightLabel = ttk.Label(self.treeInfoFrame, text='Height:', anchor='e')
         self.heightLabel.grid(row=1, column=0, padx=xpad, sticky='e')
-        self.heightValueLabel = ttk.Label(self.treeInfoFrame, text='')
-        self.heightValueLabel.grid(row=1, column=1, padx=xpad, sticky='w')
+        self.heightValueLabel = ttk.Label(self.treeInfoFrame, text='', width=5)
+        self.heightValueLabel.grid(row=1, column=1, padx=xpad, sticky='e')
 
-        self.alphLabel = ttk.Label(self.treeInfoFrame, text='Alpha: ', width=8, anchor='e')
+        self.alphLabel = ttk.Label(self.treeInfoFrame, text='Alpha:', anchor='e')
         self.alphLabel.grid(row=3, column=0, padx=xpad, sticky='e')
-        self.alphValueLabel = ttk.Label(self.treeInfoFrame, text='0.76')
-        self.alphValueLabel.grid(row=3, column=1, padx=xpad, sticky='w')
+        self.alphValueLabel = ttk.Label(self.treeInfoFrame, text='0.76', width=5)
+        self.alphValueLabel.grid(row=3, column=1, padx=xpad, sticky='e')
 
         # +=== Node Info -------------------------------------------------------------------
         self.treeNodeInfoFrame = ttk.LabelFrame(self.panel, text='Node info')
         self.treeNodeInfoFrame.pack(fill='x', padx=xpad, pady=4)
+        self.treeNodeInfoFrame.grid_columnconfigure(0, weight=1)
 
-        self.selectedLabel = ttk.Label(self.treeNodeInfoFrame, text='Node: ', width=8, anchor='e')
+        self.selectedLabel = ttk.Label(self.treeNodeInfoFrame, text='Node:', anchor='e')
         self.selectedLabel.grid(row=0, column=0, padx=xpad, sticky='e')
-        self.selectedValue = ttk.Label(self.treeNodeInfoFrame, text='3')
-        self.selectedValue.grid(row=0, column=1, padx=xpad, sticky='w')
+        self.selectedValue = ttk.Label(self.treeNodeInfoFrame, text='3', width=5)
+        self.selectedValue.grid(row=0, column=1, padx=xpad, sticky='e')
 
-        self.leftChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Left children: ', anchor='e')
+        self.leftChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Left children:', anchor='e')
         self.leftChildrenLabel.grid(row=1, column=0, padx=xpad, sticky='e')
-        self.leftChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='')
-        self.leftChildrenValue.grid(row=1, column=1, padx=xpad, sticky='w')
+        self.leftChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='', width=5)
+        self.leftChildrenValue.grid(row=1, column=1, padx=xpad, sticky='e')
 
-        self.rightChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Right children: ', anchor='e')
+        self.rightChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Right children:', anchor='e')
         self.rightChildrenLabel.grid(row=2, column=0, padx=xpad, sticky='e')
-        self.rightChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='')
-        self.rightChildrenValue.grid(row=2, column=1, padx=xpad, sticky='w')
+        self.rightChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='', width=5)
+        self.rightChildrenValue.grid(row=2, column=1, padx=xpad, sticky='e')
 
         self.canvas.bind('<Configure>', self.update)
 
@@ -272,14 +277,24 @@ class Application:
         self.__recently = False
 
 
+    ## Gives back the focus to the entry widget.
+    def __returnFocus(self, _):
+        self.entry1.focus_set()
+
+
     ## Selects a node.
      # If no node is passed, then the number in the entry will be used.
     def selectNode(self, node=None):
         if node is None:
-            node = self.tree.findEntry(float(self.entry1.get()))
+            try:
+                node = self.tree.findEntry(float(self.entry1.get()))
+            except ValueError:
+                node = None
 
         self.selected = node
         self.update()
+        if self.selected is None: return
+
         self.canvas.itemconfigure(
             node.circle,
             outline=themes[self._theme]['selectedOutline']
@@ -299,7 +314,6 @@ class Application:
             self.tree.add(key)
             self.entry1.delete(0, 'end')
             self.update()
-        self.entry1.focus_set()
 
     ## Removes the key node from the tree.
      # If no key is passed, then the number in the entry will be used.
