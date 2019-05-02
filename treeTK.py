@@ -160,24 +160,29 @@ class Application:
         self.alphValueLabel.grid(row=3, column=1, padx=xpad, sticky='e')
 
         # +=== Node Info -------------------------------------------------------------------
-        self.treeNodeInfoFrame = ttk.LabelFrame(self.panel, text='Node info')
-        self.treeNodeInfoFrame.pack(fill='x', padx=xpad, pady=4)
-        self.treeNodeInfoFrame.grid_columnconfigure(0, weight=1)
+        self.nodeInfoFrame = ttk.LabelFrame(self.panel, text='Node info')
+        self.nodeInfoFrame.pack(fill='x', padx=xpad, pady=4)
+        self.nodeInfoFrame.grid_columnconfigure(0, weight=1)
 
-        self.selectedLabel = ttk.Label(self.treeNodeInfoFrame, text='Node:', anchor='e')
+        self.selectedLabel = ttk.Label(self.nodeInfoFrame, text='Node:', anchor='e')
         self.selectedLabel.grid(row=0, column=0, padx=xpad, sticky='e')
-        self.selectedValue = ttk.Label(self.treeNodeInfoFrame, text='3', width=5)
+        self.selectedValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
         self.selectedValue.grid(row=0, column=1, padx=xpad, sticky='e')
 
-        self.leftChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Left children:', anchor='e')
-        self.leftChildrenLabel.grid(row=1, column=0, padx=xpad, sticky='e')
-        self.leftChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='', width=5)
-        self.leftChildrenValue.grid(row=1, column=1, padx=xpad, sticky='e')
+        self.nodeSizeLabel = ttk.Label(self.nodeInfoFrame, text='Size:', anchor='e')
+        self.nodeSizeLabel.grid(row=1, column=0, padx=xpad, sticky='e')
+        self.nodeSizeValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
+        self.nodeSizeValue.grid(row=1, column=1, padx=xpad, sticky='e')
 
-        self.rightChildrenLabel = ttk.Label(self.treeNodeInfoFrame, text='Right children:', anchor='e')
-        self.rightChildrenLabel.grid(row=2, column=0, padx=xpad, sticky='e')
-        self.rightChildrenValue = ttk.Label(self.treeNodeInfoFrame, text='', width=5)
-        self.rightChildrenValue.grid(row=2, column=1, padx=xpad, sticky='e')
+        self.leftChildrenLabel = ttk.Label(self.nodeInfoFrame, text='Left children:', anchor='e')
+        self.leftChildrenLabel.grid(row=2, column=0, padx=xpad, sticky='e')
+        self.leftChildrenValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
+        self.leftChildrenValue.grid(row=2, column=1, padx=xpad, sticky='e')
+
+        self.rightChildrenLabel = ttk.Label(self.nodeInfoFrame, text='Right children:', anchor='e')
+        self.rightChildrenLabel.grid(row=3, column=0, padx=xpad, sticky='e')
+        self.rightChildrenValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
+        self.rightChildrenValue.grid(row=3, column=1, padx=xpad, sticky='e')
 
         self.canvas.bind('<Configure>', self.update)
 
@@ -253,14 +258,15 @@ class Application:
             font=('Calibri', fontSize, 'bold'),
             tags='node'
         )
-
-
         def handler(event, obj=node): return self.__clickHandler(event, obj)
         self.canvas.tag_bind(node.circle, '<Button>', handler)
         self.canvas.tag_bind(node.text, '<Button>', handler)
 
 
     ## Handles the clicks in the canvas.
+     #
+     # If there is a left click on a node, it will be selected. If it is a right click on a node, it will be removed.
+     # If clicked outside any node, the node selected will be deselected.
     def __clickHandler(self, event, node=None):
         # As the handler fires twice when clicked on the element in the canvas (one for the canvas, one the element),
         # I needed to create this variable __recently to stop de function to run the second time in one click.
@@ -283,6 +289,7 @@ class Application:
 
 
     ## Selects a node.
+     #
      # If no node is passed, then the number in the entry will be used.
     def selectNode(self, node=None):
         if node is None:
@@ -293,6 +300,7 @@ class Application:
 
         self.selected = node
         self.update()
+
         if self.selected is None: return
 
         self.canvas.itemconfigure(
@@ -315,6 +323,7 @@ class Application:
             self.entry1.delete(0, 'end')
             self.update()
 
+
     ## Removes the key node from the tree.
      # If no key is passed, then the number in the entry will be used.
     def removeNode(self, key=None):
@@ -325,10 +334,13 @@ class Application:
         if key:
             self.tree.remove(key)
             self.entry1.delete(0, 'end')
+            self.selected = None
             self.update()
 
-
     ## Add a random number into the tree.
+     #
+     # If the number choosed is already in the tree, it will try to add a random decimal to this number choosed and fit
+     # it in the tree, until it succeed.
     def addRandom(self):
         key = r.randint(-99, 99)
         while self.tree.add(key):
@@ -403,8 +415,15 @@ class Application:
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
         self.heightValueLabel['text'] = f'{self.tree.height()}'
         if self.selected:
+            self.selectedValue['text'] = f'{self.selected.data}'
+            self.nodeSizeValue['text'] = f'{self.selected.size}'
             self.leftChildrenValue['text'] = f'{self.selected.left.size if self.selected.left else 0}'
             self.rightChildrenValue['text'] = f'{self.selected.right.size if self.selected.right else 0}'
+        else:
+            self.selectedValue['text'] = 'None'
+            self.nodeSizeValue['text'] = '0'
+            self.leftChildrenValue['text'] = '0'
+            self.rightChildrenValue['text'] = '0'
 
         self.canvas.update()
 
