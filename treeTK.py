@@ -32,7 +32,6 @@ class Application:
      #
     def __init__(self, window: tk.Tk, width=800, height=600):
         # Constants and variables
-        self.__BASERADIUS = 150
         self._theme = tk.StringVar()
         self._theme.set('dark')
 
@@ -213,11 +212,22 @@ class Application:
     def __drawTree(self, currNode, level=1):
         if currNode is None: return
 
-        # The Y position of the node.
-        currNode.r = self.radius
-        currNode.y = level * self.ysep - self.ysep / 2
+        treeHeight = self.tree.height() + 1
 
-        # The X position of the node.
+        totalWeight = (1/(2**treeHeight) - 1)/(1/2 - 1)
+
+        weight = 1 / level
+        ratio = weight/totalWeight
+
+        baseRadius = self.canvas.winfo_height() / 3
+        currNode.r = baseRadius * ratio
+
+        if currNode.parent:
+            currNode.y = currNode.parent.y + ratio * self.canvas.winfo_height()
+        else:
+            currNode.y = ratio * self.canvas.winfo_height() / 2
+
+
         if currNode.parent is None:
             currNode.x = self.canvas.winfo_width() / 2
         elif currNode.data < currNode.parent.data:
@@ -242,7 +252,6 @@ class Application:
         elif not self.tree.isBalanced(node):
             fillColor = themes[self._theme.get()]['uNodeFill']
             outlineColor = themes[self._theme.get()]['uNodeOutline']
-
 
         outline = 2
         fontSize = int(node.r)
@@ -317,6 +326,7 @@ class Application:
                 node = None
 
         self.selected = node
+        # print(node.y)
         self.update()
 
         if self.selected is None: return
@@ -428,11 +438,7 @@ class Application:
         self.canvas.delete('all')
         self.canvas['bg'] = themes[self._theme.get()]['bg']
 
-        height = self.tree.height()
-        if height >= 0:
-            self.scale = 1 / (height + 1)
-            self.radius = self.__BASERADIUS * self.scale
-            self.ysep = self.canvas.winfo_height() * self.scale
+        if self.tree.height() >= 0:
             self.__drawTree(self.tree.root())
 
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
