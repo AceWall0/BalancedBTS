@@ -48,20 +48,20 @@ class Application:
         self.root.grid_columnconfigure(0, weight=1)
 
         # Menu ------------------------------------------------------------
-        self.menubar = tk.Menu(self.root)
+        menubar = tk.Menu(self.root)
 
-        self.fileMenu = tk.Menu(self.menubar, tearoff=0)
-        self.fileMenu.add_command(label='New')
-        self.fileMenu.add_command(label='Open...')
-        self.fileMenu.add_command(label='Save As...')
-        self.menubar.add_cascade(label='File', menu=self.fileMenu)
+        fileMenu = tk.Menu(menubar, tearoff=0)
+        fileMenu.add_command(label='New')
+        fileMenu.add_command(label='Open...')
+        fileMenu.add_command(label='Save As...')
+        menubar.add_cascade(label='File', menu=fileMenu)
 
-        self.themeMenu = tk.Menu(self.menubar, tearoff=0)
-        self.themeMenu.add_radiobutton(label='Light', variable=self._theme, value='light', command=self.update)
-        self.themeMenu.add_radiobutton(label='Dark', variable=self._theme, value='dark', command=self.update)
-        self.menubar.add_cascade(label='Theme', menu=self.themeMenu)
+        themeMenu = tk.Menu(menubar, tearoff=0)
+        themeMenu.add_radiobutton(label='Light', variable=self._theme, value='light', command=self.update)
+        themeMenu.add_radiobutton(label='Dark', variable=self._theme, value='dark', command=self.update)
+        menubar.add_cascade(label='Theme', menu=themeMenu)
 
-        self.root.config(menu=self.menubar)
+        self.root.config(menu=menubar)
 
         # The canvas widget -----------------------------------------------
         self.canvas = tk.Canvas(self.root, bg=themes[self._theme.get()]['bg'])
@@ -71,71 +71,72 @@ class Application:
 
         # The right control panel -------------------------------------------------
         xpad = 4
-        self.panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
-        self.panel.grid(row=0, column=1, sticky='ns', padx=xpad, pady=6)
+        panel = ttk.Frame(self.root, width=100, borderwidth=1, relief='solid')
+        panel.grid(row=0, column=1, sticky='ns', padx=xpad, pady=6)
 
         # +=== The config panel ---------------------------------------------------
-        self.configFrame = ttk.LabelFrame(self.panel, text=' Config ')
-        self.configFrame.pack(fill='x', padx=xpad, pady=4)
+        configFrame = ttk.LabelFrame(panel, text=' Config ')
+        configFrame.pack(fill='x', padx=xpad, pady=4)
 
         self.autoBalVar = tk.BooleanVar()
         self.autoBalVar.set(True)
-        self.autoBalCB = ttk.Checkbutton(
-            self.configFrame, text='Auto balanced', variable=self.autoBalVar, command=self.__autoBalancedHandler)
-        self.autoBalCB.pack(fill='x', padx=xpad, pady=2)
+        autoBalCB = ttk.Checkbutton(
+            configFrame,
+            text='Auto balanced',
+            variable=self.autoBalVar,
+            command=self.__autoBalancedHandler)
+        autoBalCB.pack(fill='x', padx=xpad, pady=2)
 
 
         # +=== +=== The Alpha config panel -----------------------------------------
         xpad = 2
-        self.alphaFrame = ttk.LabelFrame(self.configFrame, text=' Alpha ')
-        self.alphaFrame.pack(fill='x', padx=xpad, pady=2, ipady=2)
+        alphaFrame = ttk.LabelFrame(configFrame, text=' Alpha ')
+        alphaFrame.pack(fill='x', padx=xpad, pady=2, ipady=2)
 
-        self.topLabel = ttk.Label(self.alphaFrame, text='Numarator: ')
-        self.topLabel.grid(row=0, column=0, padx=xpad, pady=1, sticky='w')
+        topLabel = ttk.Label(alphaFrame, text='Numarator: ')
+        topLabel.grid(row=0, column=0, padx=xpad, pady=1, sticky='w')
 
-        self.bottomLabel = ttk.Label(self.alphaFrame, text='Denominator: ')
-        self.bottomLabel.grid(row=1, column=0, padx=xpad, pady=1, sticky='w')
+        bottomLabel = ttk.Label(alphaFrame, text='Denominator: ')
+        bottomLabel.grid(row=1, column=0, padx=xpad, pady=1, sticky='w')
 
         self.topSpin = ttk.Spinbox(
-            self.alphaFrame, command=self.__alphaHandler, width=3, increment=1, from_=1, to=50)
+            alphaFrame, command=self.__alphaHandler, width=3, increment=1, from_=1, to=50)
         self.topSpin.bind('<Key>', self.__alphaHandler)
         self.topSpin.set(self.tree.top)
         self.topSpin.grid(row=0, column=1, padx=xpad, pady=1, sticky='e')
 
         self.bottomSpin = ttk.Spinbox(
-            self.alphaFrame, command=self.__alphaHandler, width=3, increment=1, from_=1, to=50)
+            alphaFrame, command=self.__alphaHandler, width=3, increment=1, from_=1, to=50)
         self.bottomSpin.bind('<Key>', self.__alphaHandler)
         self.bottomSpin.set(self.tree.bottom)
         self.bottomSpin.grid(row=1, column=1, padx=xpad, pady=1, sticky='e')
 
-        self.alphaLabel1 = ttk.Label(self.alphaFrame, text='\u03B1: ')
+        self.alphaLabel1 = ttk.Label(alphaFrame, text='\u03B1: ')
         self.alphaLabel1.grid(row=2, column=0, padx=xpad, pady=2, sticky='e')
 
-        self.alphaLabel2 = ttk.Label(self.alphaFrame, text=f'{self.tree.top/self.tree.bottom:.2f}')
-        self.alphaLabel2.grid(row=2, column=1, padx=xpad, pady=2)
+        self.alphaLabelValue = ttk.Label(alphaFrame, text=f'{self.tree.top / self.tree.bottom:.2f}')
+        self.alphaLabelValue.grid(row=2, column=1, padx=xpad, pady=2)
         # +=== ------------------------------------------------------------------------------------
 
         # +=== Quick Action buttons -------------------------------------------------------------
         xpad = 4
-        self.clearBtn = ttk.Button(self.panel, text='Clear', command=self.clear)
-        self.clearBtn.pack(fill='x', padx=xpad, pady=2)
+        clearBtn = ttk.Button(panel, text='Clear', command=self.clear)
+        clearBtn.pack(fill='x', padx=xpad, pady=2)
 
-        self.rebalanceBtn = ttk.Button(self.panel, text='Rebalance', command=self.rebalance)
-        self.rebalanceBtn.pack(fill='x', padx=xpad, pady=2)
+        rebalanceBtn = ttk.Button(panel, text='Rebalance', command=self.rebalance)
+        rebalanceBtn.pack(fill='x', padx=xpad, pady=2)
 
-        self.randomBtn = ttk.Button(self.panel, text='Add Random', command=self.addRandom)
-        self.randomBtn.pack(fill='x', padx=xpad, pady=2)
+        randomBtn = ttk.Button(panel, text='Add Random', command=self.addRandom)
+        randomBtn.pack(fill='x', padx=xpad, pady=2)
 
 
         # +=== Node Action frame -----------------------------------------------------------------
-        self.addRemoveFR = ttk.Frame(self.panel, borderwidth=1, relief='solid')
-        self.addRemoveFR.pack(fill='x', side='top', padx=xpad, pady=8)
-        # self.addRemoveFR.grid_columnconfigure(1, weight=1)
-
+        addRemoveFR = ttk.Frame(panel, borderwidth=1, relief='solid')
+        addRemoveFR.pack(fill='x', side='top', padx=xpad, pady=8)
 
         vcmd = (self.root.register(_isFloatable), '%P')
         self.entry1 = ttk.Entry(
-            self.addRemoveFR,
+            addRemoveFR,
             justify='center',
             font=('Calibri', 12),
             validate='key', validatecommand=vcmd,
@@ -144,61 +145,61 @@ class Application:
         self.entry1.bind('<KeyPress-Return>', self._add_remove)
         self.entry1.grid(row=0, column=1, padx=xpad, pady=4, sticky='we')
 
-        self.selectBtn = ttk.Button(self.addRemoveFR, text='Select', width=8, command=self.selectNode)
-        self.selectBtn.grid(row=0, column=0, padx=xpad, pady=4, sticky='ns')
-        self.selectBtn.bind('<ButtonRelease>', self.__returnFocus)
+        selectBtn = ttk.Button(addRemoveFR, text='Select', width=8, command=self.selectNode)
+        selectBtn.grid(row=0, column=0, padx=xpad, pady=4, sticky='ns')
+        selectBtn.bind('<ButtonRelease>', self.__returnFocus)
 
-        self.removeBtn = ttk.Button(self.addRemoveFR, text='Remove', width=8, command=self.removeNode)
-        self.removeBtn.grid(row=1, column=0, padx=xpad, pady=4, sticky='ns')
-        self.removeBtn.bind('<ButtonRelease>', self.__returnFocus)
+        removeBtn = ttk.Button(addRemoveFR, text='Remove', width=8, command=self.removeNode)
+        removeBtn.grid(row=1, column=0, padx=xpad, pady=4, sticky='ns')
+        removeBtn.bind('<ButtonRelease>', self.__returnFocus)
 
-        self.addBtn = ttk.Button(self.addRemoveFR, text='Add', width=8, command=self.addNode)
-        self.addBtn.grid(row=1, column=1, padx=xpad, pady=4, sticky='ns')
-        self.addBtn.bind('<ButtonRelease>', self.__returnFocus)
+        addBtn = ttk.Button(addRemoveFR, text='Add', width=8, command=self.addNode)
+        addBtn.grid(row=1, column=1, padx=xpad, pady=4, sticky='ns')
+        addBtn.bind('<ButtonRelease>', self.__returnFocus)
 
         # +=== Tree Info -----------------------------------------------------------------
-        self.treeInfoFrame = ttk.LabelFrame(self.panel, text='Tree info')
-        self.treeInfoFrame.pack(fill='x', padx=xpad)
-        self.treeInfoFrame.grid_columnconfigure(0, weight=1)
+        treeInfoFrame = ttk.LabelFrame(panel, text='Tree info')
+        treeInfoFrame.pack(fill='x', padx=xpad)
+        treeInfoFrame.grid_columnconfigure(0, weight=1)
 
-        self.sizeLabel = ttk.Label(self.treeInfoFrame, text='Size:', anchor='e')
-        self.sizeLabel.grid(row=0, column=0, padx=xpad, sticky='e')
-        self.sizeValueLabel = ttk.Label(self.treeInfoFrame, text='', width=5)
+        sizeLabel = ttk.Label(treeInfoFrame, text='Size:', anchor='e')
+        sizeLabel.grid(row=0, column=0, padx=xpad, sticky='e')
+        self.sizeValueLabel = ttk.Label(treeInfoFrame, text='', width=5)
         self.sizeValueLabel.grid(row=0, column=1, padx=xpad, sticky='e')
 
-        self.heightLabel = ttk.Label(self.treeInfoFrame, text='Height:', anchor='e')
-        self.heightLabel.grid(row=1, column=0, padx=xpad, sticky='e')
-        self.heightValueLabel = ttk.Label(self.treeInfoFrame, text='', width=5)
+        heightLabel = ttk.Label(treeInfoFrame, text='Height:', anchor='e')
+        heightLabel.grid(row=1, column=0, padx=xpad, sticky='e')
+        self.heightValueLabel = ttk.Label(treeInfoFrame, text='', width=5)
         self.heightValueLabel.grid(row=1, column=1, padx=xpad, sticky='e')
 
-        self.alphLabel = ttk.Label(self.treeInfoFrame, text='Alpha:', anchor='e')
-        self.alphLabel.grid(row=3, column=0, padx=xpad, sticky='e')
-        self.alphValueLabel = ttk.Label(self.treeInfoFrame, text='0.76', width=5)
-        self.alphValueLabel.grid(row=3, column=1, padx=xpad, sticky='e')
+        alphLabel = ttk.Label(treeInfoFrame, text='Alpha:', anchor='e')
+        alphLabel.grid(row=3, column=0, padx=xpad, sticky='e')
+        self.alphaValueLabel2 = ttk.Label(treeInfoFrame, text='0.76', width=5)
+        self.alphaValueLabel2.grid(row=3, column=1, padx=xpad, sticky='e')
 
         # +=== Node Info -------------------------------------------------------------------
-        self.nodeInfoFrame = ttk.LabelFrame(self.panel, text='Node info')
-        self.nodeInfoFrame.pack(fill='x', padx=xpad, pady=4)
-        self.nodeInfoFrame.grid_columnconfigure(0, weight=1)
+        nodeInfoFrame = ttk.LabelFrame(panel, text='Node info')
+        nodeInfoFrame.pack(fill='x', padx=xpad, pady=4)
+        nodeInfoFrame.grid_columnconfigure(0, weight=1)
 
-        self.selectedLabel = ttk.Label(self.nodeInfoFrame, text='Node:', anchor='e')
-        self.selectedLabel.grid(row=0, column=0, padx=xpad, sticky='e')
-        self.selectedValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
+        selectedLabel = ttk.Label(nodeInfoFrame, text='Node:', anchor='e')
+        selectedLabel.grid(row=0, column=0, padx=xpad, sticky='e')
+        self.selectedValue = ttk.Label(nodeInfoFrame, text='', width=5)
         self.selectedValue.grid(row=0, column=1, padx=xpad, sticky='e')
 
-        self.nodeSizeLabel = ttk.Label(self.nodeInfoFrame, text='Size:', anchor='e')
-        self.nodeSizeLabel.grid(row=1, column=0, padx=xpad, sticky='e')
-        self.nodeSizeValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
+        nodeSizeLabel = ttk.Label(nodeInfoFrame, text='Size:', anchor='e')
+        nodeSizeLabel.grid(row=1, column=0, padx=xpad, sticky='e')
+        self.nodeSizeValue = ttk.Label(nodeInfoFrame, text='', width=5)
         self.nodeSizeValue.grid(row=1, column=1, padx=xpad, sticky='e')
 
-        self.leftChildrenLabel = ttk.Label(self.nodeInfoFrame, text='Left children:', anchor='e')
-        self.leftChildrenLabel.grid(row=2, column=0, padx=xpad, sticky='e')
-        self.leftChildrenValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
+        leftChildrenLabel = ttk.Label(nodeInfoFrame, text='Left children:', anchor='e')
+        leftChildrenLabel.grid(row=2, column=0, padx=xpad, sticky='e')
+        self.leftChildrenValue = ttk.Label(nodeInfoFrame, text='', width=5)
         self.leftChildrenValue.grid(row=2, column=1, padx=xpad, sticky='e')
 
-        self.rightChildrenLabel = ttk.Label(self.nodeInfoFrame, text='Right children:', anchor='e')
-        self.rightChildrenLabel.grid(row=3, column=0, padx=xpad, sticky='e')
-        self.rightChildrenValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
+        rightChildrenLabel = ttk.Label(nodeInfoFrame, text='Right children:', anchor='e')
+        rightChildrenLabel.grid(row=3, column=0, padx=xpad, sticky='e')
+        self.rightChildrenValue = ttk.Label(nodeInfoFrame, text='', width=5)
         self.rightChildrenValue.grid(row=3, column=1, padx=xpad, sticky='e')
 
         self.canvas.bind('<Configure>', self.__updateCanvasOnly)
@@ -216,7 +217,6 @@ class Application:
         treeHeight = self.tree.height() + 1
 
         totalWeight = (1/(2**treeHeight) - 1)/(1/2 - 1)
-
         weight = 1 / level
         ratio = weight/totalWeight
 
@@ -455,17 +455,17 @@ class Application:
         top = float(self.topSpin.get())
         bottom = float(self.bottomSpin.get())
         alpha = top/bottom
-        self.alphaLabel2['text'] = f'{alpha:.2f}'
+        self.alphaLabelValue['text'] = f'{alpha:.2f}'
         if 0.5 < alpha < 1:
             self.alphaLabel1['foreground'] = 'black'
-            self.alphaLabel2['foreground'] = 'black'
-            self.alphValueLabel['text'] = f'{alpha:.2f}'
+            self.alphaLabelValue['foreground'] = 'black'
+            self.alphaValueLabel2['text'] = f'{alpha:.2f}'
             self.tree.top = top
             self.tree.bottom = bottom
             self.update()
         else:
             self.alphaLabel1['foreground'] = 'red'
-            self.alphaLabel2['foreground'] = 'red'
+            self.alphaLabelValue['foreground'] = 'red'
 
 
     ## Updates everything
