@@ -201,7 +201,7 @@ class Application:
         self.rightChildrenValue = ttk.Label(self.nodeInfoFrame, text='', width=5)
         self.rightChildrenValue.grid(row=3, column=1, padx=xpad, sticky='e')
 
-        self.canvas.bind('<Configure>', self.update)
+        self.canvas.bind('<Configure>', self.__updateCanvasOnly)
 
 
     ## Draws the tree recursivaly.
@@ -362,7 +362,6 @@ class Application:
                 node = None
 
         self.selected = node
-        # print(node.y)
         self.update()
 
         if self.selected is None: return
@@ -469,13 +468,9 @@ class Application:
             self.alphaLabel2['foreground'] = 'red'
 
 
-    ## Calculates all the scales and updates the canvas.
+    ## Updates everything
     def update(self, *_):
-        self.canvas.delete('all')
-        self.canvas['bg'] = themes[self._theme.get()]['bg']
-
-        if self.tree.height() >= 0:
-            self.__drawTree(self.tree.root())
+        self.__updateCanvasOnly()
 
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
         self.heightValueLabel['text'] = f'{self.tree.height()}'
@@ -490,7 +485,14 @@ class Application:
             self.leftChildrenValue['text'] = '0'
             self.rightChildrenValue['text'] = '0'
 
-        self.canvas.update()
+
+    ## Updates only the canvas
+    def __updateCanvasOnly(self, *_):
+        self.canvas.delete('all')
+        self.canvas['bg'] = themes[self._theme.get()]['bg']
+        if self.tree.height() >= 0:
+            self.__drawTree(self.tree.root())
+        self.canvas.update_idletasks()
 
 
 # ====== Functions ===========================================================
