@@ -66,6 +66,7 @@ class Application:
         # The canvas widget -----------------------------------------------
         self.canvas = tk.Canvas(self.root, bg=themes[self._theme.get()]['bg'])
         self.canvas.bind('<Button-1>', self.__clickHandler)
+        self.root.bind('<KeyPress>', self.__navigate)
         self.canvas.grid(row=0, column=0, sticky='nsew', padx=0, pady=4)
 
         # The right control panel -------------------------------------------------
@@ -308,6 +309,41 @@ class Application:
             self.selected = None
             self.update()
         self.__recently = False
+
+
+    def __navigate(self, event):
+        if event.keysym in ('Left', 'Right', 'Up', 'Down'):
+            if self.selected is None:
+                self.selectNode(self.tree.root())
+                return
+
+            if event.keysym == 'Left':
+                if self.selected.left:
+                    self.selectNode(self.selected.left)
+                elif self.selected.parent:
+                    if self.selected.parent.right is self.selected:
+                        self.selectNode(self.selected.parent)
+                return
+
+            elif event.keysym == 'Right':
+                if self.selected.right:
+                    self.selectNode(self.selected.right)
+                elif self.selected.parent:
+                    if self.selected.parent.left is self.selected:
+                        self.selectNode(self.selected.parent)
+                return
+
+            elif event.keysym == 'Up':
+                if self.selected.parent:
+                    self.selectNode(self.selected.parent)
+                return
+
+            elif event.keysym == 'Down':
+                if self.selected.left and not self.selected.right:
+                    self.selectNode(self.selected.left)
+                elif self.selected.right and not self.selected.left:
+                    self.selectNode(self.selected.right)
+                return
 
 
     ## Gives back the focus to the entry widget.
