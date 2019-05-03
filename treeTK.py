@@ -43,7 +43,7 @@ class Application:
         # ================== The window construction ======================
         self.root = window
         self.root.geometry(f'{width}x{height}')
-        self.root.minsize(400, 400)
+        self.root.minsize(650, 510)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
 
@@ -174,7 +174,7 @@ class Application:
 
         alphLabel = ttk.Label(treeInfoFrame, text='Alpha:', anchor='e')
         alphLabel.grid(row=3, column=0, padx=xpad, sticky='e')
-        self.alphaValueLabel2 = ttk.Label(treeInfoFrame, text='0.76', width=5)
+        self.alphaValueLabel2 = ttk.Label(treeInfoFrame, text='0.67', width=5)
         self.alphaValueLabel2.grid(row=3, column=1, padx=xpad, sticky='e')
 
         # +=== Node Info -------------------------------------------------------------------
@@ -202,7 +202,7 @@ class Application:
         self.rightChildrenValue = ttk.Label(nodeInfoFrame, text='', width=5)
         self.rightChildrenValue.grid(row=3, column=1, padx=xpad, sticky='e')
 
-        self.canvas.bind('<Configure>', self.__updateCanvasOnly)
+        self.canvas.bind('<Configure>', self.__updateCanvas)
 
 
     ## Draws the tree recursivaly.
@@ -214,23 +214,20 @@ class Application:
     def __drawTree(self, currNode, level=1):
         if currNode is None: return
 
-        treeHeight = self.tree.height() + 1
-
-        totalWeight = (1/(2**treeHeight) - 1)/(1/2 - 1)
-        weight = 1 / level
-        ratio = weight/totalWeight
+        weight = 1/level
+        ratio = weight/self._totalWeight
 
         baseRadius = self.canvas.winfo_height() / 3
         currNode.r = baseRadius * ratio
 
         if currNode.parent:
-            currNode.y = currNode.parent.y + ratio * self.canvas.winfo_height()
+            currNode.y = currNode.parent.y + ratio*self.canvas.winfo_height() * 1.19
         else:
             currNode.y = ratio * self.canvas.winfo_height() / 2
 
 
         if currNode.parent is None:
-            currNode.x = self.canvas.winfo_width() / 2
+            currNode.x = self.canvas.winfo_width()/2
         elif currNode.data < currNode.parent.data:
             currNode.x = currNode.parent.x - self.canvas.winfo_width() / (2 ** level)
         else:
@@ -470,7 +467,7 @@ class Application:
 
     ## Updates everything
     def update(self, *_):
-        self.__updateCanvasOnly()
+        self.__updateCanvas()
 
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
         self.heightValueLabel['text'] = f'{self.tree.height()}'
@@ -487,9 +484,14 @@ class Application:
 
 
     ## Updates only the canvas
-    def __updateCanvasOnly(self, *_):
+    def __updateCanvas(self, *_):
         self.canvas.delete('all')
         self.canvas['bg'] = themes[self._theme.get()]['bg']
+
+        self._totalWeight = 0
+        for n in range(1, self.tree.height() + 2):
+            self._totalWeight += 1/n
+
         if self.tree.height() >= 0:
             self.__drawTree(self.tree.root())
         self.canvas.update_idletasks()
