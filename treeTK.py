@@ -10,7 +10,9 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import BalancedBSTSet as bst
 import random as r
+import pickle
 from colors import *
+from tkinter import filedialog
 
 
 # ===== Classes =====================================================
@@ -34,6 +36,8 @@ class Application:
         # Constants and variables
         self._theme = tk.StringVar()
         self._theme.set('dark')
+        self.filename = 'New Tree.bst'
+
 
         # Logic things
         self.tree = bst.BalancedBSTSet(True)
@@ -52,8 +56,8 @@ class Application:
 
         fileMenu = tk.Menu(menubar, tearoff=0)
         fileMenu.add_command(label='New')
-        fileMenu.add_command(label='Open...')
-        fileMenu.add_command(label='Save As...')
+        fileMenu.add_command(label='Open...', command=self.__open)
+        fileMenu.add_command(label='Save As...', command=self.__saveAs)
         menubar.add_cascade(label='File', menu=fileMenu)
 
         themeMenu = tk.Menu(menubar, tearoff=0)
@@ -469,6 +473,7 @@ class Application:
     def update(self, *_):
         self.__updateCanvas()
 
+        self.autoBalVar.set(self.tree.selfBalanced)
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
         self.heightValueLabel['text'] = f'{self.tree.height()}'
         if self.selected:
@@ -495,6 +500,29 @@ class Application:
         if self.tree.height() >= 0:
             self.__drawTree(self.tree.root())
         self.canvas.update_idletasks()
+
+
+    ## Saves the tree in a 'pickled' .bst file.
+    def __saveAs(self):
+        with filedialog.asksaveasfile(
+                mode='wb',
+                defaultextension='.bst',
+                filetypes=[('Binary Search Tree', '*.bst')],
+                initialfile=self.filename
+                ) as f:
+            pickle.dump(self.tree, f)
+
+
+    ## Loads a .bst file
+    def __open(self):
+        with filedialog.askopenfile(
+                mode='rb',
+                defaultextension='.bst',
+                filetypes=[('Binary Search Tree', '*.bst')],
+                initialfile='*.bst'
+                ) as f:
+            self.tree = pickle.load(f)
+            self.update()
 
 
 # ====== Functions ===========================================================
