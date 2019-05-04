@@ -11,6 +11,7 @@ import tkinter.ttk as ttk
 import BalancedBSTSet as bst
 import random as r
 import pickle
+import os
 from colors import *
 from tkinter import filedialog
 
@@ -36,7 +37,8 @@ class Application:
         # Constants and variables
         self._theme = tk.StringVar()
         self._theme.set('dark')
-        self.filename = 'New Tree.bst'
+        self.filename = 'new tree.bst'
+        self.path = None
 
 
         # Logic things
@@ -50,6 +52,7 @@ class Application:
         self.root.minsize(650, 510)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
+        self.root.title(f'BSTSet Visualizer')
 
         # Menu ------------------------------------------------------------
         menubar = tk.Menu(self.root)
@@ -57,7 +60,10 @@ class Application:
         fileMenu = tk.Menu(menubar, tearoff=0)
         fileMenu.add_command(label='New')
         fileMenu.add_command(label='Open...', command=self.__open)
+        fileMenu.add_command(label='Save', command=self.__save)
         fileMenu.add_command(label='Save As...', command=self.__saveAs)
+        fileMenu.add_separator()
+        fileMenu.add_command(label='Exit', command=root.quit)
         menubar.add_cascade(label='File', menu=fileMenu)
 
         themeMenu = tk.Menu(menubar, tearoff=0)
@@ -473,6 +479,9 @@ class Application:
     def update(self, *_):
         self.__updateCanvas()
 
+        if self.root.title()[-1] != '*':
+            self.root.title(self.root.title() + '*')
+
         self.autoBalVar.set(self.tree.selfBalanced)
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
         self.heightValueLabel['text'] = f'{self.tree.height()}'
@@ -511,6 +520,18 @@ class Application:
                 initialfile=self.filename
                 ) as f:
             pickle.dump(self.tree, f)
+            self.root.title(f'[{f.name}] - BSTSet Visualizer')
+            self.filename = os.path.basename(f.name)
+            self.path = f.name
+
+
+    # Saves the current file. If the application is not associated to any file, it asks to create one.
+    def __save(self):
+        if self.path is None: self.__saveAs()
+        else:
+            with open(self.path, 'wb') as f:
+                pickle.dump(self.tree, f)
+                self.root.title(f'[{f.name}] - BSTSet Visualizer')
 
 
     ## Loads a .bst file
@@ -522,6 +543,9 @@ class Application:
                 initialfile='*.bst'
                 ) as f:
             self.tree = pickle.load(f)
+            self.root.title(f'[{f.name}] - BSTSet Visualizer')
+            self.filename = os.path.basename(f.name)
+            self.path = f.name
             self.update()
 
 
