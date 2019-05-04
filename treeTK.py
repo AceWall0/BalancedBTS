@@ -58,18 +58,18 @@ class Application:
         menubar = tk.Menu(self.root)
 
         fileMenu = tk.Menu(menubar, tearoff=0)
-        fileMenu.add_command(label='New')
-        fileMenu.add_command(label='Open...', command=self.__open)
-        fileMenu.add_command(label='Save', command=self.__save)
-        fileMenu.add_command(label='Save As...', command=self.__saveAs)
+        fileMenu.add_command(label='New', underline=0, accelerator='Ctrl+N')
+        fileMenu.add_command(label='Open...', underline=0, accelerator='Ctrl+O', command=self.__open)
+        fileMenu.add_command(label='Save', underline=0, accelerator='Ctrl+S', command=self.__save)
+        fileMenu.add_command(label='Save As...', underline=5, accelerator='Ctrl+Alt+S', command=self.__saveAs)
         fileMenu.add_separator()
-        fileMenu.add_command(label='Exit', command=root.quit)
-        menubar.add_cascade(label='File', menu=fileMenu)
+        fileMenu.add_command(label='Exit', underline=0, accelerator='Alt+F4', command=root.quit)
+        menubar.add_cascade(label='File', underline=0, menu=fileMenu)
 
         themeMenu = tk.Menu(menubar, tearoff=0)
         themeMenu.add_radiobutton(label='Light', variable=self._theme, value='light', command=self.update)
         themeMenu.add_radiobutton(label='Dark', variable=self._theme, value='dark', command=self.update)
-        menubar.add_cascade(label='Theme', menu=themeMenu)
+        menubar.add_cascade(label='Theme', underline=0, menu=themeMenu)
 
         self.root.config(menu=menubar)
 
