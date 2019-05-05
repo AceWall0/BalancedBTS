@@ -18,6 +18,7 @@ from tkinter import messagebox
 
 
 # ===== Classes =====================================================
+
 ##
  # Graphical user interface for the BalancedBSTSet implementation.
  #      To run:
@@ -44,7 +45,7 @@ class Application:
         # Logic things
         self.tree = bst.BalancedBSTSet(True)
         self.selected = None
-        self.__recently = False
+        self.__recently = False  # Used to resolve a conflict with double events.
 
         # ================== The window construction ======================
         self.root = window
@@ -74,6 +75,8 @@ class Application:
         themeMenu.add_radiobutton(label='Light', variable=self._theme, value='light', command=self.update)
         themeMenu.add_radiobutton(label='Dark', variable=self._theme, value='dark', command=self.update)
         menubar.add_cascade(label='Theme', underline=0, menu=themeMenu)
+
+        menubar.add_command(label='About', underline=0, command=self.__showAbout)
 
         self.root.config(menu=menubar)
 
@@ -216,6 +219,7 @@ class Application:
         self.rightChildrenValue = ttk.Label(nodeInfoFrame, text='', width=5)
         self.rightChildrenValue.grid(row=3, column=1, padx=xpad, sticky='e')
 
+        self.update()
         self.canvas.bind('<Configure>', self.__updateCanvas)
 
 
@@ -395,6 +399,7 @@ class Application:
         if key:
             self.tree.add(key)
             self.entry1.delete(0, 'end')
+            self.__markToSave()
             self.update()
 
 
@@ -409,6 +414,7 @@ class Application:
             self.tree.remove(key)
             self.entry1.delete(0, 'end')
             self.selected = None
+            self.__markToSave()
             self.update()
 
 
@@ -429,6 +435,7 @@ class Application:
     def clear(self):
         for node in self.tree:
             self.tree.remove(node)
+        self.__markToSave()
         self.update()
 
 
@@ -436,6 +443,7 @@ class Application:
     def rebalance(self):
         if not self.tree.isEmpty():
             self.tree.rebalance()
+            self.__markToSave()
             self.update()
 
 
@@ -473,18 +481,22 @@ class Application:
             self.alphaValueLabel2['text'] = f'{alpha:.2f}'
             self.tree.top = top
             self.tree.bottom = bottom
+            self.__markToSave()
             self.update()
         else:
             self.alphaLabel1['foreground'] = 'red'
             self.alphaLabelValue['foreground'] = 'red'
 
 
+    ## Marks the title of the window with an asterisk character to tell the user it is not saved.
+    def __markToSave(self):
+        if self.root.title()[-1] != '*':
+            self.root.title(self.root.title() + '*')
+
+
     ## Updates everything
     def update(self, *_):
         self.__updateCanvas()
-
-        if self.root.title()[-1] != '*':
-            self.root.title(self.root.title() + '*')
 
         self.autoBalVar.set(self.tree.selfBalanced)
         self.sizeValueLabel['text'] = f'{self.tree.root().size if self.tree.root() else 0}'
@@ -540,12 +552,15 @@ class Application:
 
     ## Loads a .bst file
     def __open(self, *_):
+        if self.tree.root():
+            self.__askSave()
+
         with filedialog.askopenfile(
-                mode='rb',
                 defaultextension='.bst',
                 filetypes=[('Binary Search Tree', '*.bst'), ('Any', '*')],
                 initialfile='*.bst'
                 ) as f:
+
             try:
                 self.tree = pickle.load(f)
             except pickle.UnpicklingError:
@@ -558,14 +573,81 @@ class Application:
             self.update()
 
 
+    ## Creates a new tree.
     def __new(self, *_):
+        if self.tree.root():
+            self.__askSave()
+
         self.filename = 'new tree.bst'
         self.path = None
         self.tree = bst.BalancedBSTSet(True)
         self.selected = None
-        self.__recently = False
         self.root.title(f'BSTSet Visualizer')
         self.update()
+
+
+    ## Asks to save the file
+    def __askSave(self):
+        if messagebox.askyesno(message='The current Tree is not saved. Do you wanna save it?'):
+            self.__save()
+
+
+    ## Opens the 'About' window
+    def __showAbout(self):
+        AboutWindow(self.root)
+
+
+##
+ # The information window about this program.
+ #
+ # @author Wallace Alves dos Santos
+ # @since 05/05/2019
+ #
+class AboutWindow:
+    def __init__(self, parent):
+        self.root = tk.Toplevel(padx=20, pady=10)
+        self.root.transient(parent)
+        self.root.geometry('+500+100')
+        self.root.focus_set()
+        self.root.bind('<FocusOut>', lambda _: self.root.destroy())
+
+        text1 = ttk.Label(self.root, anchor='center', justify='center', font=('Calibri', 16, 'bold'))
+        text1['text'] = "Binary Search Tree visualizer\n"
+        text1.pack()
+
+        separator1 = ttk.Separator(self.root)
+        separator1.pack(fill='x')
+
+        text2 = ttk.Label(self.root, anchor='center', justify='center', font=('Calibri', 11))
+        text2['text'] = (
+            "\nBuilt on May 5, 2019\n"
+            "by Wallace Alves dos Santos (AceWall)"
+        )
+        text2.pack()
+
+        text3 = ttk.Label(self.root, anchor='center', justify='center', text='acewall0@outlook.com\n')
+        text3.pack()
+
+        separator2 = ttk.Separator(self.root)
+        separator2.pack(fill='x')
+
+        text4 = ttk.Label(self.root)
+        text4['text'] = (
+            "\nThis is a college project of a binary tree\n"
+            "complete with an user interface.\n\n"
+            "Although this is my first 'finished' application,\n"
+            "I tried to polish everything that I remeber that\n"
+            "should be polished.\n\n"
+            "To use it, you can add, select and remove nodes\n"
+            "with the panel at right. You can also select the\n"
+            "nodes by clicking on it or using the arrow keys\n"
+            "to navigate over them. Also, right-clicking them\n"
+            "deletes it. Or you can also hit the 'delete' key.\n"
+        )
+        text4.pack()
+
+        closeButton = ttk.Button(self.root, text='Close', command=self.root.destroy)
+        closeButton.pack()
 
 
 # ====== Functions ===========================================================
