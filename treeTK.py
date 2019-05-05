@@ -617,7 +617,7 @@ class AboutWindow:
         self.root.bind('<FocusOut>', lambda _: self.root.destroy())
 
         text1 = ttk.Label(self.root, anchor='center', justify='center', font=('Calibri', 16, 'bold'))
-        text1['text'] = "Binary Search Tree visualizer\n"
+        text1['text'] = "Binary Search Tree Viewer\n"
         text1.pack()
 
         ttk.Separator(self.root).pack(fill='x')
