@@ -360,6 +360,11 @@ class Application:
                     self.selectNode(self.selected.right)
                 return
 
+        elif event.keysym == 'Delete':
+            self.removeNode(self.selected.data)
+        elif event.keysym == 'Insert':
+            self.entry1.focus_set()
+
 
     ## Gives back the focus to the entry widget.
     def __returnFocus(self, _):
