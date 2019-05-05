@@ -11,8 +11,8 @@ import tkinter.ttk as ttk
 import BalancedBSTSet as bst
 import random as r
 import pickle
+import json
 import os
-from colors import *
 from tkinter import filedialog
 from tkinter import messagebox
 
@@ -37,8 +37,6 @@ class Application:
      #
     def __init__(self, window: tk.Tk, width=800, height=600):
         # Constants and variables
-        self._theme = tk.StringVar()
-        self._theme.set('dark')
         self.filename = 'new tree.bst'
         self.path = None
 
@@ -62,6 +60,7 @@ class Application:
         # Menu ------------------------------------------------------------
         menubar = tk.Menu(self.root)
 
+        # +=== File menu ---------------------------------------------------
         fileMenu = tk.Menu(menubar, tearoff=0)
         fileMenu.add_command(label='New', underline=0, accelerator='Ctrl+N', command=self.__new)
         fileMenu.add_command(label='Open...', underline=0, accelerator='Ctrl+O', command=self.__open)
@@ -71,14 +70,29 @@ class Application:
         fileMenu.add_command(label='Exit', underline=0, accelerator='Alt+F4', command=root.quit)
         menubar.add_cascade(label='File', underline=0, menu=fileMenu)
 
+        # +=== Themes ------------------------------------------------------
+        # Loads the json with all the themes
+        with open('themes.json') as f:
+            themes = json.load(f)
+
+        # Creates a Tk variable to use with the menu radio buttons, holding the current theme name being used.
+        self._theme = tk.StringVar()
+
+        # Sets the current theme name to be the first item in the json.
+        self._theme.set(tuple(themes.keys())[0])
+
+        # Loads only the colors in that particular theme.
+        self._colors = themes[self._theme.get()]
+
         themeMenu = tk.Menu(menubar, tearoff=0)
-        themeMenu.add_radiobutton(label='Light', variable=self._theme, value='light', command=self.update)
-        themeMenu.add_radiobutton(label='Dark', variable=self._theme, value='dark', command=self.update)
+        for theme in themes.keys():
+            themeMenu.add_radiobutton(label=theme, variable=self._theme, value=theme, command=self.__changeTheme)
         menubar.add_cascade(label='Theme', underline=0, menu=themeMenu)
 
+        # +=== About button menu -----------------------------------------------
         menubar.add_command(label='About', underline=0, command=self.__showAbout)
-
         self.root.config(menu=menubar)
+
 
         # The canvas widget -----------------------------------------------
         self.canvas = tk.Canvas(self.root, bg=themes[self._theme.get()]['bg'])
@@ -258,16 +272,16 @@ class Application:
 
     ## Draw a Node in the canvas, with the text and the lines to the respective parents.
     def __drawNode(self, node):
-        fillColor = themes[self._theme.get()]['nodeFill']
-        outlineColor = themes[self._theme.get()]['nodeOutline']
+        fillColor = self._colors['nodeFill']
+        outlineColor = self._colors['nodeOutline']
 
         if node.counter == 0:
-            fillColor = themes[self._theme.get()]['leafFill']
-            outlineColor = themes[self._theme.get()]['leafOutline']
+            fillColor = self._colors['leafFill']
+            outlineColor = self._colors['leafOutline']
 
         elif not self.tree.isBalanced(node):
-            fillColor = themes[self._theme.get()]['uNodeFill']
-            outlineColor = themes[self._theme.get()]['uNodeOutline']
+            fillColor = self._colors['uNodeFill']
+            outlineColor = self._colors['uNodeOutline']
 
         outline = 2
         fontSize = int(node.r)
@@ -290,14 +304,14 @@ class Application:
                 node.x, node.y,
                 node.parent.x,
                 node.parent.y,
-                width=2, fill=themes[self._theme.get()]['nodeOutline']
+                width=2, fill=self._colors['nodeOutline']
             )
             self.canvas.tag_lower(node.line)
 
         node.text = self.canvas.create_text(
             node.x, node.y,
             text=f'{node.data:g}',
-            fill=themes[self._theme.get()]['text'],
+            fill=self._colors['text'],
             font=('Calibri', fontSize, 'bold'),
             tags='node'
         )
@@ -388,7 +402,7 @@ class Application:
 
         self.canvas.itemconfigure(
             node.circle,
-            outline=themes[self._theme.get()]['selectedOutline']
+            outline=self._colors['selectedOutline']
         )
         self.canvas.tag_raise(node.circle)
         self.canvas.tag_raise(node.text)
@@ -415,7 +429,7 @@ class Application:
             entry = self.entry1.get()
             if entry and entry != '-':
                 key = float(entry)
-        if key:
+        if key is not '':
             self.tree.remove(key)
             self.entry1.delete(0, 'end')
             self.selected = None
@@ -521,7 +535,7 @@ class Application:
     ## Updates only the canvas
     def __updateCanvas(self, *_):
         self.canvas.delete('all')
-        self.canvas['bg'] = themes[self._theme.get()]['bg']
+        self.canvas['bg'] = self._colors['bg']
 
         self._totalWeight = 0
         for n in range(1, self.tree.height() + 2):
@@ -601,6 +615,11 @@ class Application:
     def __showAbout(self):
         AboutWindow(self.root)
 
+    def __changeTheme(self):
+        with open('themes.json') as f:
+            themes = json.load(f)
+        self._colors = themes[self._theme.get()]
+        self.update()
 
 ##
  # The information window about this program.

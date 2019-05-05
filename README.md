@@ -20,10 +20,10 @@ change themes and lots of other small things for a 'first program'.
 ## Filelist
 ```
 - BalancedBSTSet.py
-- colors.py
 - README.md
 - treeTK.py
 - test_BalancedBSTSet.py
+- themes.json
 ```
 
 ## How to run:
