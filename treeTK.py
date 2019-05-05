@@ -620,8 +620,7 @@ class AboutWindow:
         text1['text'] = "Binary Search Tree visualizer\n"
         text1.pack()
 
-        separator1 = ttk.Separator(self.root)
-        separator1.pack(fill='x')
+        ttk.Separator(self.root).pack(fill='x')
 
         text2 = ttk.Label(self.root, anchor='center', justify='center', font=('Calibri', 11))
         text2['text'] = (
@@ -633,23 +632,30 @@ class AboutWindow:
         text3 = ttk.Label(self.root, anchor='center', justify='center', text='acewall0@outlook.com\n')
         text3.pack()
 
-        separator2 = ttk.Separator(self.root)
-        separator2.pack(fill='x')
+        ttk.Separator(self.root).pack(fill='x')
 
-        text4 = ttk.Label(self.root)
+        text4 = ttk.Label(self.root, wraplength=240)
         text4['text'] = (
-            "\nThis is a college project of a binary tree\n"
+            "\nThis is a college project of a binary tree "
             "complete with an user interface.\n\n"
-            "Although this is my first 'finished' application,\n"
-            "I tried to polish everything that I remeber that\n"
-            "should be polished.\n\n"
-            "To use it, you can add, select and remove nodes\n"
-            "with the panel at right. You can also select the\n"
-            "nodes by clicking on it or using the arrow keys\n"
-            "to navigate over them. Also, right-clicking them\n"
-            "deletes it. Or you can also hit the 'delete' key.\n"
+            "This is my first 'finished' application ever! "
+            "And even though is a pretty simple application, "
+            "I tried to let everything pretty polished, and "
+            "I hope if you are seeing this, you enjoy it.\n"
         )
         text4.pack()
+
+        ttk.Separator(self.root).pack(fill='x')
+
+        text5 = ttk.Label(self.root, wraplength=240)
+        text5['text'] = (
+            "\nYou can use it by the panel at the right or "
+            "using the directional keys to navigate through "
+            "the nodes and the delete or insert key to "
+            "remove or delete nodes. You can also left or "
+            "right click directly in to the nodes.\n"
+        )
+        text5.pack()
 
         closeButton = ttk.Button(self.root, text='Close', command=self.root.destroy)
         closeButton.pack()
