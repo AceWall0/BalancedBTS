@@ -14,6 +14,7 @@ import pickle
 import os
 from colors import *
 from tkinter import filedialog
+from tkinter import messagebox
 
 
 # ===== Classes =====================================================
@@ -40,7 +41,6 @@ class Application:
         self.filename = 'new tree.bst'
         self.path = None
 
-
         # Logic things
         self.tree = bst.BalancedBSTSet(True)
         self.selected = None
@@ -53,12 +53,16 @@ class Application:
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
         self.root.title(f'BSTSet Visualizer')
+        self.root.bind('<Control-n>', self.__new)
+        self.root.bind('<Control-s>', self.__save, add=True)
+        self.root.bind('<Control-Alt-s>', self.__saveAs, add=True)
+        self.root.bind('<Control-o>', self.__saveAs, add=True)
 
         # Menu ------------------------------------------------------------
         menubar = tk.Menu(self.root)
 
         fileMenu = tk.Menu(menubar, tearoff=0)
-        fileMenu.add_command(label='New', underline=0, accelerator='Ctrl+N')
+        fileMenu.add_command(label='New', underline=0, accelerator='Ctrl+N', command=self.__new)
         fileMenu.add_command(label='Open...', underline=0, accelerator='Ctrl+O', command=self.__open)
         fileMenu.add_command(label='Save', underline=0, accelerator='Ctrl+S', command=self.__save)
         fileMenu.add_command(label='Save As...', underline=5, accelerator='Ctrl+Alt+S', command=self.__saveAs)
@@ -76,7 +80,7 @@ class Application:
         # The canvas widget -----------------------------------------------
         self.canvas = tk.Canvas(self.root, bg=themes[self._theme.get()]['bg'])
         self.canvas.bind('<Button-1>', self.__clickHandler)
-        self.root.bind('<KeyPress>', self.__navigate)
+        self.root.bind('<KeyPress>', self.__navigate, add=True)
         self.canvas.grid(row=0, column=0, sticky='nsew', padx=0, pady=4)
 
         # The right control panel -------------------------------------------------
@@ -512,7 +516,7 @@ class Application:
 
 
     ## Saves the tree in a 'pickled' .bst file.
-    def __saveAs(self):
+    def __saveAs(self, *_):
         with filedialog.asksaveasfile(
                 mode='wb',
                 defaultextension='.bst',
@@ -526,7 +530,7 @@ class Application:
 
 
     # Saves the current file. If the application is not associated to any file, it asks to create one.
-    def __save(self):
+    def __save(self, *_):
         if self.path is None: self.__saveAs()
         else:
             with open(self.path, 'wb') as f:
@@ -535,18 +539,33 @@ class Application:
 
 
     ## Loads a .bst file
-    def __open(self):
+    def __open(self, *_):
         with filedialog.askopenfile(
                 mode='rb',
                 defaultextension='.bst',
-                filetypes=[('Binary Search Tree', '*.bst')],
+                filetypes=[('Binary Search Tree', '*.bst'), ('Any', '*')],
                 initialfile='*.bst'
                 ) as f:
-            self.tree = pickle.load(f)
+            try:
+                self.tree = pickle.load(f)
+            except pickle.UnpicklingError:
+                messagebox.showerror('error', 'Fail to open the file')
+                return
+
             self.root.title(f'[{f.name}] - BSTSet Visualizer')
             self.filename = os.path.basename(f.name)
             self.path = f.name
             self.update()
+
+
+    def __new(self, *_):
+        self.filename = 'new tree.bst'
+        self.path = None
+        self.tree = bst.BalancedBSTSet(True)
+        self.selected = None
+        self.__recently = False
+        self.root.title(f'BSTSet Visualizer')
+        self.update()
 
 
 # ====== Functions ===========================================================
