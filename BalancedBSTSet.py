@@ -231,28 +231,28 @@ class BalancedBSTSet:
                     break
 
         if self.selfBalanced:
-            unbalanced = self.__findUnbalanced(current)
+            unbalanced = self.__findUnbalancedParent(current)
             if unbalanced:
                 self.rebalance(unbalanced)
 
         return False
 
 
-    ## Verify if a Node is balanced. Returns True if it is.
+    ## Verify if a Node is balanced. Returns True if it is, False otherwise.
     def isBalanced(self, x: Node):
         left_size = x.left.size if x.left else 0
         right_size = x.right.size if x.right else 0
 
         balan_left = left_size * self.bottom <= x.size * self.top
         balan_right = right_size * self.bottom <= x.size * self.top
-        return x if (balan_left and balan_right) else None
+        return bool(balan_left and balan_right)
 
 
     ##
-     #  Find the highest Node in the tree that is unbalanced. Note that it starts looking from the bottom to the top.
+     #  Find the highest unbalanced parent of the Node.
      #
      #  @returns the unbalanced Node if there is one. Returns None otherwise.
-    def __findUnbalanced(self, x):
+    def __findUnbalancedParent(self, x):
         current = x
         unbalanced = None
         while True:
@@ -260,6 +260,15 @@ class BalancedBSTSet:
             if current.parent: current = current.parent
             else: break
         return unbalanced
+
+
+    ## Find the highest unbalanced child of the Node.
+    def __findUnbalancedChild(self, x):
+        if not x: return None
+        if not self.isBalanced(x):
+            return x
+        else:
+            return self.__findUnbalancedChild(x.left) or self.__findUnbalancedChild(x.right)
 
 
     ## Updates the counter from the bottom to the top on a specific Node.
@@ -290,10 +299,15 @@ class BalancedBSTSet:
     def remove(self, obj):
         n = self.findEntry(obj)
         if n is None: return False
+        if n.parent:
+            exParent = n.parent
         self.unlinkNode(n)
 
         if self.selfBalanced:
-            unbalanced = self.__findUnbalanced(n)
+            unbalanced = self.__findUnbalancedParent(n)
+            if not unbalanced:
+                unbalanced = self.__findUnbalancedChild(n)
+
             if unbalanced:
                 self.rebalance(unbalanced)
 
@@ -587,7 +601,7 @@ class BalancedBSTSet:
             self.__pending = None
 
             if self.__tree.selfBalanced:
-                unbalanced = self.__tree.__findUnbalanced(parent)
+                unbalanced = self.__tree.__findUnbalancedParent(parent)
                 if unbalanced:
                     self.__tree.rebalance(unbalanced)
 
